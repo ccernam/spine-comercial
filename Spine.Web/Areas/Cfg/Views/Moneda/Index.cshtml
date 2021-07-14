@@ -1,0 +1,366 @@
+﻿@using Spine.Web.Clases.Rutas;
+@using Spine.Web.Clases;
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Estilos -->
+<link href="~/Content/plugins/dataTables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/plugins/dataTables/responsive.dataTables.min.css" rel="stylesheet" />
+<link href="~/Content/plugins/switchery/switchery.css" rel="stylesheet" />
+
+<script type="text/javascript">
+    document.title = "Monedas : @CnsCadenas.WEB_TITULO";
+</script>
+
+<!-- Monedas  -->
+<div class="wrapper wrapper-content">
+    <div id="mostrarMoneda" class="">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox">
+                        <div class="ibox-title">
+                            <h5>Monedas</h5>
+                            <div class="ibox-tools">
+                                @*<a class="btn btn-success btn-sm" title="Agregar Moneda" onclick="" id="moneda_index_btnAgregar">
+                                        <i class="fas fa-plus"></i> Agregar
+                                    </a>*@
+                            </div>
+                        </div>
+                        <div class="ibox-content">
+                            <div id="contenedor-tabla-Moneda">
+                                <table id="moneda_index_tblMoneda" class="table table-striped table-bordered" cellspacing="100"></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="moneda_index_modMoneda" class="modal fade ui-widget-content" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" tabindex="-1" data-focus-on="input:first" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <form role="form" id="moneda_index_frmMoneda" autocomplete="off">
+                <div class="modal-header">
+                    <h4 class="modal-title">Agregar Moneda</h4>
+                </div>
+                <div class="modal-body" id="mon_index_MonedaForm">
+                    <div class="row">
+                        <div class="col-md-12" id="mon_index_divCampos">
+                            <div class="row">
+                                <!-- Nombre -->
+                                <div class="form-group col-md-12">
+                                    <label for="moneda_index_txtMonNombre">Nombre <span style="color:red"> *</span> </label>
+                                    <input type="text" id="moneda_index_txtMonNombre" name="sMonNombre" class="form-control input-sm solo-mayusculas" maxlength="20" required />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <!-- Nombre Plural -->
+                                <div class="form-group col-md-12">
+                                    <label for="moneda_index_txtMonNombPlural">Nombre Plural <span style="color:red"> *</span> </label>
+                                    <input type="text" id="moneda_index_txtMonNombPlural" name="sMonNombrePlural" class="alfanumerico limpiar-modal form-control input-sm dt-input-alfanum solo-mayusculas" maxlength="30" required />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <!-- Simbolo -->
+                                <div class="form-group col-md-6">
+                                    <label for="moneda_index_txtMonSimbolo">Símbolo <span style="color:red"> *</span> </label>
+                                    <input type="text" id="moneda_index_txtMonSimbolo" name="sMonSimbolo" class="form-control limpiar-modal input-sm solo-mayusculas" maxlength="5" required />
+                                </div>
+                                <!-- ISO -->
+                                <div class="form-group col-md-6">
+                                    <label for="moneda_index_txtMonISO">ISO <span style="color:red"> *</span> </label>
+                                    <input type="text" id="moneda_index_txtMonISO" name="sMonIso" class="form-control limpiar-modal input-sm solo-mayusculas" maxlength="3" required />
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                <!-- Estado -->
+                                <div class="form-group col-md-4">
+                                    <label class="">Estado <span style="color:red"> *</span></label>
+                                    <div class="input-group" id="divEstado" style="display: block;padding-top: 0px;">
+                                        <input type="checkbox" name="sMonEstado" class="form-control switchery-custom-enable" id="moneda_index_chkMonEstado" checked>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button type="button" id="moneda_index_btnGuardar" class="btn btn-primary btn-sm"><span class="fas fa-save"></span> Guardar</button>
+                            <button type="button" id="moneda_index_btnCancelar" class="btn btn-danger btn-sm" data-dismiss="modal"><span class="fas fa-times"></span> Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Plugins -->
+<script src="~/Scripts/plugins/dataTables/datatables.min.js"></script>
+<script src="~/Scripts/plugins/dataTables/dataTables.responsive.min.js"></script>
+<script src="~/Scripts/plugins/switchery/switchery.js"></script>
+<script>
+    // Variables globales
+    var moneda_index_tblMoneda = null;
+    var moneda_index_nIdMoneda = 0;
+    var moneda_index_oMoneda = {};
+    var moneda_index_chkMonEstado = new Object();
+    var grupo_index_dom = "<'row'<'col-sm - 12'f>><'row'<'col-sm-12't>><'row'<'col-sm-5'i><'col-sm-7'p>>";
+
+    // Evento ready
+    $(document).ready(function () {
+        moneda_index_estiloInicial();
+        moneda_index_dataInicial();
+    });
+
+    // Funciones
+    function moneda_index_estiloInicial() {
+        $(document).on('hidden.bs.modal', '.modal', function () { $('.modal:visible').length && $(document.body).addClass('modal-open'); });
+        $.fn.modal.Constructor.prototype.enforceFocus = function () { };
+
+        moneda_index_chkMonEstado = fnSwitchery("#moneda_index_chkMonEstado");
+
+        moneda_index_tblMoneda = $('#moneda_index_tblMoneda').DataTable({
+            autoWidth: false,
+            responsive: true,
+            sort: false,
+            iDisplayLength: 50,
+            dom: grupo_index_dom,
+            columns: [
+                {
+                    title: "N°", data: null, width: "40px", className: "text-center",
+                    render: function (data, type, row, meta) {
+                        if (type == "display") {
+                            return meta.row + 1;
+                        }
+                        return data;
+                    }
+                },    // 1
+                { title: "Nombre", data: "sMonNombre"},
+                { title: "Nombre Plural", data: "sMonNombrePlural"},
+                { title: "Símbolo", data: "sMonSimbolo"},
+                { title: "ISO", data: "sMonIso"},
+                {
+                    title: "Estado", data: "sMonEstado", width: "80px", className: "text-center",
+                    render: function (data, type, row, meta) {
+                        if (type == "display") {
+                            let vsClass = (row.nMonEstado === 0 ? "badge badge-danger" : "badge badge-primary");
+                            return "<span class='" + vsClass + "'>" + data + "</span>";
+                        }
+                        return data;
+                    }
+                },
+                {
+                    title: "Acciones", data: null, width: "60px", className: "text-center",   // 8
+                    render: function (data, type, row, meta) {
+                        if (type === 'display') { // <-- para no renderizar 3 veces, solo 1
+                            return "<div class='btn-group'>" +
+                                "<a data-toggle='dropdown' class='btn-success btn-sm dropdown-toggle btn-newTable'>" +
+                                "<i class='fa fa-cog fa-1x cog-new' aria-hidden='true'></i>" +
+                                "<b class='caret caret-new'></b>" +
+                                "</a>" +
+                                "<ul class='dropdown-menu pull-right'>" +
+                                "<li><button type='button' class='btn btn-block btnAccion' onclick=\"moneda_index_editarMoneda('" + row.nIdMoneda + "')\" >" +
+                                "<i class='fas fa-edit' aria-hidden='true'></i> Editar</button></li>";
+                        }
+                        return data;
+                    }
+                },
+            ]
+        });
+        fnMayusculas(".solo-mayusculas");
+        fnMayusculas(".select2-search__field");
+        fnAlfabetico("#moneda_index_txtMonNombre", true);
+        fnAlfabetico("#moneda_index_txtMonNombPlural", true);
+        fnAlfabetico("#moneda_index_txtMonSimbolo", false, "$/€£¥¢₩");
+        fnAlfabetico("#moneda_index_txtMonISO");
+    }
+    function moneda_index_dataInicial() {
+        fnProcesando();
+        let vobjParametros = {};
+        fnLlenarObjeto("#mon_index_divCampos", vobjParametros);
+        fnGet("@(CnsRutaCfg.MONEDA_CONSULTAR)", vobjParametros, function (pobjApiRpta) {
+            if (fnVerificarApiRpta(pobjApiRpta)) {
+                moneda_index_tblMoneda.clear().draw();
+                moneda_index_tblMoneda.rows.add(pobjApiRpta.objDatos).draw().columns.adjust().responsive.recalc();
+            }
+            fnProcesando(false);
+        });
+        fnProcesando(false);
+    }
+    function moneda_index_editarMoneda(pnIdMoneda) {
+        if (pnIdMoneda > 1) {
+            moneda_index_limpiarModal();
+            moneda_index_chkMonEstado.enable();
+            fnProcesando();
+            fnGet("@CnsRutaCfg.MONEDA_CONSULTAR", { pnIdMoneda: pnIdMoneda }, function (pobjApiRpta) {
+			    if (fnVerificarApiRpta(pobjApiRpta)) {
+				    if (pobjApiRpta.objDatos.length == 0) {
+					    fnAdvertencia("La consulta no ha devuelto resultados");
+				    } else {
+                        moneda_index_oMoneda = pobjApiRpta.objDatos[0];
+                        fnLimpiarDiv("#mon_index_MonedaForm");
+                        fnLlenarDiv("#mon_index_MonedaForm", moneda_index_oMoneda);
+                        moneda_index_chkMonEstado.val(moneda_index_oMoneda.nMonEstado == 1);
+                        moneda_index_chkMonEstado.enable();
+                        $("#moneda_index_modMoneda").modal("show");
+                        $("#moneda_index_modMoneda .modal-title").text("Editar Moneda");
+				    }
+			    }
+			    fnProcesando(false);
+		    });
+        } else if (pnIdMoneda == 1) {
+            fnAdvertencia("La moneda por defecto de la empresa no puede ser modificada.");
+        } else {
+            fnAdvertencia("Asegúrese de seleccionar una moneda.");
+        }
+    }
+    function moneda_index_limpiarModal() {
+        moneda_index_nIdMoneda = 0;
+        moneda_index_oMoneda = {};
+        fnLimpiarDiv("#mon_index_divCampos");
+    }
+    function moneda_index_validarMoneda() {
+        var validar = false;
+        if ($.trim($("#moneda_index_txtMonNombre").val()).length > 0) {
+            validar = true;
+        } else {
+            validar = false;
+            fnAdvertencia("Debe ingresar el Nombre de la Moneda","Validación");
+            return validar;
+        }
+        if ($.trim($("#moneda_index_txtMonNombPlural").val()).length > 0) {
+            validar = true;
+        } else {
+            validar = false;
+            fnAdvertencia("Debe ingresar el Nombre Plural de la Moneda", "Validación");
+            return validar;
+        }
+        if ($.trim($("#moneda_index_txtMonSimbolo").val()).length > 0) {
+            validar = true;
+        } else {
+            validar = false;
+            fnAdvertencia("Debe ingresar el Símbolo de la Moneda", "Validación");
+            return validar;
+        }
+        if ($.trim($("#moneda_index_txtMonISO").val()).length > 0) {
+            validar = true;
+        } else {
+            validar = false;
+            fnAdvertencia("Debe ingresar el ISO de la Moneda", "Validación");
+            return validar;
+        }
+        return validar;
+    }
+    function moneda_index_validarGuardar() {
+        var moneda_index_lRespuesta = true;
+        // Nombre
+        if ($.trim(moneda_index_oMoneda.sMonNombre).length === 0) {
+            fnAdvertencia("Ingrese Nombre.");
+            return false;
+        }
+        if (!fnValidarCampo(moneda_index_oMoneda.sMonNombre, false, true, false, "")) {
+            fnAdvertencia("Ingrese Nombre válido.");
+            return false;
+        }
+
+        // Nombre plural
+        if ($.trim(moneda_index_oMoneda.sMonNombrePlural).length === 0) {
+            fnAdvertencia("Ingrese Nombre Plural.");
+            return false;
+        }
+        if (!fnValidarCampo(moneda_index_oMoneda.sMonNombrePlural, false, true, false, "")) {
+            fnAdvertencia("Ingrese Nombre Plural válido.");
+            return false;
+        }
+
+        // Símbolo
+        if ($.trim(moneda_index_oMoneda.sMonSimbolo).length === 0) {
+            fnAdvertencia("Ingrese Símbolo.");
+            return false;
+        }
+        if (!fnValidarCampo(moneda_index_oMoneda.sMonSimbolo, false, true, false, "$/€£¥¢₩")) {
+            fnAdvertencia("Ingrese Símbolo válido.");
+            return false;
+        }
+
+        // ISO
+        if ($.trim(moneda_index_oMoneda.sMonIso).length === 0) {
+            fnAdvertencia("Ingrese ISO.");
+            return false;
+        }
+        if (!fnValidarCampo(moneda_index_oMoneda.sMonIso, false, true, false, "")) {
+            fnAdvertencia("Ingrese ISO válido.");
+            return false;
+        }
+
+        // Estado
+        if (moneda_index_oMoneda.nMonEstado !== 0 && moneda_index_oMoneda.nMonEstado !== 1) {
+            fnAdvertencia("El estado de la Moneda no es válido.");
+            return false;
+        }
+        return moneda_index_lRespuesta;
+    }
+    $("#moneda_index_btnGuardar").click(function () {
+        if ($("#moneda_index_frmMoneda")[0].checkValidity()) {
+            if (moneda_index_validarMoneda()) {
+            fnPregunta("¿Está seguro de guardar Moneda?", function () {
+                fnProcesando(false);
+                fnLlenarObjeto("#mon_index_MonedaForm", moneda_index_oMoneda);
+                moneda_index_oMoneda.nMonEstado = (moneda_index_chkMonEstado.val()) ? 1 : 0;
+                fnPost("@CnsRutaCfg.MONEDA_GUARDAR", moneda_index_oMoneda, function (pobjApiRpta) {
+                    fnProcesando(false);
+                    if (fnVerificarApiRpta(pobjApiRpta)) {
+                        moneda_index_limpiarModal();
+                        $("#moneda_index_modMoneda").modal("hide");
+                        let mon_index_mensaje = (moneda_index_oMoneda.nIdMoneda == 0) ? ' guardó ' : ' actualizó';
+                        fnMensaje("Se" + mon_index_mensaje + " moneda exitosamente!", pobjApiRpta.sTipo);
+                        moneda_index_dataInicial();
+                    }
+                });
+                });
+            }
+        } else {
+            $("#moneda_index_frmMoneda")[0].reportValidity();
+        }
+    });
+    $('.scroll_content').slimscroll({
+        height: "409px"
+    });
+
+    window.onresize = function () {
+        moneda_index_tblMoneda.columns.adjust().responsive.recalc();
+    }
+
+</script>
+
+<!-- Modal agregar nuevo Moneda -->
+<style>
+    .groupBox {
+        /*background: #FAFAFB;*/
+        border: 1px solid #e7eaec;
+        /*border-left: 3px solid #f8ac59;*/
+        margin: 0 0 10px 0;
+        padding: 10px 10px 0 10px;
+        border-radius: 2px;
+    }
+
+    .form-group-sm .form-control, .form-group-sm .select2-container--bootstrap .select2-selection--single,
+    .select2-container--bootstrap .select2-dropdown {
+        border-radius: inherit;
+    }
+
+    .select2-container--bootstrap .select2-selection--single {
+        height: 30px;
+        line-height: 1.42857143;
+        padding: 6px 24px 6px 12px;
+        font-size: 12px;
+        border-radius: inherit;
+    }
+</style>

@@ -1,0 +1,17 @@
+﻿/* <Login> */
+.login-box {
+    width: 600px;
+}
+
+.card-login-left {
+    width: 35% !important;
+}
+
+.card-login-right {
+    width: 65% !important;
+}
+
+.card-login-image {
+    width: 60%;
+}
+/* </Login> */

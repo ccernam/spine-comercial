@@ -1,0 +1,110 @@
+﻿@using Spine.Web.Clases;
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visor de documentos electrónicos</title>
+    <meta name="URL_BASE" content="@WebMetodos.GetUrlBase(Request)" />
+    <link rel="shortcut icon" type="image/x-icon" href="~/Content/img/logo-sm.png" />
+
+    <!-- Estilos -->
+    <link href="~/Content/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/css/animate.css" rel="stylesheet" />
+    <link href="~/Content/css/style.css" rel="stylesheet" />
+    <link href="~/Content/css/plugins/gritter/jquery.gritter.css" rel="stylesheet" />
+    <link href="~/Content/css/plugins/jquery-confirm/jquery-confirm.min.css" rel="stylesheet" />
+
+    <!-- Scripts -->
+    <script src="~/Scripts/jquery-3.2.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/custom/funciones.js"></script>
+    <script src="~/Scripts/plugins/gritter/jquery.gritter.min.js"></script>
+    <script src="~/Scripts/plugins/jquery-confirm/jquery-confirm.min.js"></script>
+    @*<script>FontAwesomeConfig = { searchPseudoElements: true };</script>*@        <!--Script necesario para visualizar iconos font awesome-->
+    @*<script src="~/Scripts/custom/fontawesome-all.min.js"></script>*@
+
+
+</head>
+<body class="gray-bg">
+    <div class="row middle-box loginscreen animated fadeInDown">
+        <div class="col-md-12" id="home_index_divAutenticacionForm">
+            <form id="home_index_frmAutenticacion" role="form">
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <img style="margin-left: -10px" src="~/Content/img/ebs-logo.png" width="300" height="100" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <h2>Visor interno de documentos electrónicos</h2>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 form-group">
+                        <label>Usuario</label>
+                        <div class="input-group full-width">
+                            <div class="input-group-addon">
+                                <i class="fa fa-user"></i>
+                            </div>
+                            <input type="text" class="form-control alfanumerico mayusculas input-sm" id="home_index_txtUsuUsuario" name="sUsuUsuario" required />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 form-group">
+                        <label>Clave</label>
+                        <div class="input-group full-width">
+                            <div class="input-group-addon">
+                                <i class="fa fa-key"></i>
+                            </div>
+                            <input type="password" class="form-control input-sm" id="home_index_txtUsuClave" name="sUsuClave" required />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 form-group text-center">
+                        <button class="btn btn-primary input-sm full-width" type="button" id="btnAcceder">Acceder</button>
+                        <p class="m-t"> <small>Engine Business Solutions &copy; @DateTime.Now.Year</small> </p>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @*<script src="~/Scripts/jquery-3.2.1.js"></script>
+        <script src="~/Scripts/bootstrap.js"></script>
+        <script src="~/Scripts/plugins/gritter/jquery.gritter.min.js"></script>
+        <script src="~/Scripts/custom/funciones.js"></script>*@
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#home_index_txtUsuUsuario").focus();
+        });
+        $("#btnAcceder").click(function () {
+            if ($("#home_index_frmAutenticacion")[0].checkValidity()) {
+                fnProcesando();
+                fnPostForm("seg/usuario/autenticar", "#home_index_frmAutenticacion", function (pobjApiRpta) {
+                    if (fnVerificarApiRpta(pobjApiRpta)) {
+                        window.location.replace(fnUrlBase() + "home/index");
+                    } else {
+                        fnProcesando(false);
+                    }
+                });
+            } else {
+                $("#home_index_frmAutenticacion")[0].reportValidity();
+            }
+        });
+        $("#home_index_frmAutenticacion").keypress(function (e) {
+            var key = e.which;
+            if (key == 13)  // the enter key code
+            {
+                $("#btnAcceder").click();
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>

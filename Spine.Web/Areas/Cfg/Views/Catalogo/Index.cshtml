@@ -1,0 +1,654 @@
+﻿@using Spine.Web.Clases.Rutas;
+@using Spine.Web.Clases;
+@{
+    ViewBag.Title = "Catálogo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script type="text/javascript">
+    document.title = "Catálogos : @CnsCadenas.WEB_TITULO";
+</script>
+
+<link href="~/Content/plugins/dataTables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/plugins/dataTables/responsive.dataTables.min.css" rel="stylesheet" />
+<link href="~/Content/plugins/datepicker/datepicker3.css" rel="stylesheet" />
+<link href="~/Content/plugins/select2/select2.min.css" rel="stylesheet" />
+<link href="~/Content/plugins/select2/select2-bootstrap.css" rel="stylesheet" />
+<link href="~/Content/plugins/switchery/switchery.css" rel="stylesheet" />
+
+<style>
+
+    table.dataTable thead .sorting:after {
+        opacity: 0.2;
+        content: "";
+    }
+
+    table.dataTable thead .sorting_asc:after {
+        content: "";
+    }
+
+    table.dataTable thead .sorting_desc:after {
+        content: "";
+    }
+</style>
+
+<div class="wrapper wrapper-content">
+    <div id="mostrarCatalogo" class="">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title title-header">
+                        <h5>Catálogos</h5>
+                        <div class="ibox-tools">
+                            <a class="btn btn-success btn-sm" title="Agregar catálogo" onclick="" id="cat_index_btnAgregar">
+                                <span class="icon-custom"><i class="fas fa-plus"></i></span>Agregar
+                            </a>
+                        </div>
+                    </div>
+                    <div class="ibox-content">
+                        <div id="contenedor-tabla-Catalogo">
+                            <table id="cat_index_tblCatalogo" class="table table-striped table-bordered" cellspacing="0"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="cat_index_divModCatalogo" class="modal fade ui-widget-content" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" tabindex="-1" data-focus-on="input:first">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <form role="form" id="cat_index_frmCatalogo" autocomplete="off">
+                <div class="modal-header"><h4 class="modal-title">Agregar catálogo</h4></div>
+                <div class="modal-body" id="cat_index_divCatalogoForm">
+                    <div class="row">
+
+                        <!-- Código -->
+                        <div class="form-group col-md-12">
+                            <label for="cat_index_txtCatCodigo">Código <span style="color:red"> *</span> </label>
+                            <input type="text" id="cat_index_txtCatCodigo" name="sCatCodigo" class="form-control numerico " maxlength="4" required />
+                        </div>
+
+                        <!-- Nombre catálogo -->
+                        <div class="form-group col-md-12">
+                            <label for="cat_index_txtCatNombre">Nombre <span style="color:red"> *</span> </label>
+                            <input type="text" id="cat_index_txtCatNombre" name="sCatNombre" class="form-control alfabetico mayusculas" maxlength="80" required />
+                        </div>
+
+                        <!-- Descripción -->
+                        <div class="form-group col-md-12">
+                            <label for="cat_index_txtCatDescripcion">Descripción <span style="color:red"> *</span> </label>
+                            <textarea id="cat_index_txtCatDescripcion" name="sCatDescripcion" style="resize:none" class="form-control alfanumerico mayusculas" maxlength="240" rows="6" required></textarea>
+                        </div>
+
+                        <!-- Estado -->
+                        <div class="form-group col-md-12">
+                            <label class="">Estado <span style="color:red"> *</span></label>
+                            <div class="input-group" id="divEstado" style="display: block;padding-top: 0px;">
+                                <input type="checkbox" class="form-control switchery-custom-enable" id="cat_index_chkCatEstado" name="nCatEstado" checked>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="cat_index_btnGuardar" class="btn btn-primary btn-sm"><span class="fas fa-save"></span> Guardar</button>
+                    <button type="button" id="cat_index_btnCancelar" class="btn btn-danger btn-sm" data-dismiss="modal"><span class="fas fa-times"></span> Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="cat_index_divModCatalogoDet" class="modal fade" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" tabindex="-1" data-focus-on="input:first" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Configurante detalle</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h3 class="title-group">Catálogo</h3>
+                        <div class="container-group">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Código</label>
+                                        <input id="cat_index_txtCatCodigoModal" type="text" class="form-control" maxlength="4" disabled>
+                                    </div>
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="form-group">
+                                        <label>Nombre</label>
+                                        <input id="cat_index_txtCatNombreModal" type="text" class="form-control mayusculas" maxlength="80" disabled>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <h3 class="title-group">Detalle</h3>
+                        <div class="container-group" id="cat_index_divCatalogoDetForm">
+                            <form role="form" id="cat_index_frmCatalogoDet" autocomplete="off">
+                                <div class="row">
+                                    <div class="form-group col-md-3">
+                                        <label for="cat_index_txtCDeNombre">Nombre<span style="color:red"> *</span></label>
+                                        <input id="cat_index_txtCDeNombre" name="sCDeNombre" type="text" class="form-control mayusculas alfabetico" maxlength="80" required />
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="cat_index_txtCDeBreve">Breve</label>
+                                        <div class="form-group"><input id="cat_index_txtCDeBreve" name="sCDeBreve" type="text" class="form-control mayusculas alfabetico" maxlength="20" /></div>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="cat_index_txtCDeValorNumero">Valor numérico<span style="color:red"> *</span></label>
+                                        <div class="form-group"><input type="text" min="0" step="1" id="cat_index_txtCDeValorNumero" name="nCDeValorNumero" class="form-control entero" minlenght="1" maxlength="3" required /></div>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="cat_index_txtCDeValorTexto">Valor textual</label>
+                                        <div class="form-group"><input type="text" id="cat_index_txtCDeValorTexto" name="sCDeValorTexto" class="form-control alfanumerico" maxlength="40" /></div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-md-3">
+                                        <label for="cat_index_cboCDeOrden">Ordenar antes de</label>
+                                        <select id="cat_index_cboCDeOrden" class="form-control"></select>
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <label class="">Estado </label>
+                                        <div class="input-group">
+                                            <input type="checkbox" class="form-control switchery-custom-enable" id="cat_index_chkCDeEstado" checked>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-7" style="text-align: right; margin-top: 22px">
+                                        <button type="button" class="btn btn-success btn-sm" id="cat_index_btnAgregarDet"><i class="fas fa-plus"></i> Agregar</button>
+                                        <button type="button" class="btn btn-success btn-sm" id="cat_index_btnEditarDet"><i class="fas fa-edit"></i> Editar</button>
+                                        <button type="button" class="btn btn-warning btn-sm" id="cat_index_btnLimpiarDet"><i class="fas fa-eraser" aria-hidden="true"></i> Limpiar</button>
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="row">
+                                <div class="col-md-12 table-responsive">
+                                    <table id="cat_index_tblCatalogoDet" class="table table-striped table-bordered" cellspacing="0" style="width:100%"></table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="cat_index_btnGuardarDet" class="btn btn-primary btn-sm"><span class="fas fa-save"></span> Guardar</button>
+                <button type="button" id="cat_index_btnCancelarDet" class="btn btn-danger btn-sm" data-dismiss="modal"><span class="fas fa-times"></span> Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/plugins/dataTables/datatables.min.js"></script>
+<script src="~/Scripts/plugins/dataTables/dataTables.responsive.min.js"></script>
+<script src="~/Scripts/plugins/datepicker/bootstrap-datepicker.js"></script>
+<script src="~/Scripts/plugins/select2/select2.full.min.js"></script>
+<script src="~/Scripts/plugins/switchery/switchery.js"></script>
+
+<script type="text/javascript">
+	// Variables
+	var cat_index_tblCatalogo = {};
+	var cat_index_objCatalogo = {};
+	var cat_index_chkCatEstado = {};
+	var cat_index_nIdCatalogo = 0;
+
+	var cat_index_tblCatalogoDet = {};
+	var cat_index_arrCatalogoDet = [];
+	var cat_index_objCatalogoDet = {};
+	var cat_index_chkCDeEstado = {};
+	var cat_index_nCDePosicion = 0;
+
+	// Ready
+	$(document).ready(function () {
+		fnProcesando();
+		cat_index_estiloInicial();
+		cat_index_dataInicial();
+	});
+
+	// Init y Data
+	function cat_index_estiloInicial() {
+
+		fnMayusculas();
+		fnNumerico();
+		fnAlfabetico();
+		fnAlfanumerico(".alfanumerico", true, "&-_/#():");
+		fnEntero();
+		cat_index_chkCatEstado = fnSwitchery("#cat_index_chkCatEstado");
+		cat_index_chkCDeEstado = fnSwitchery("#cat_index_chkCDeEstado");
+
+		cat_index_tblCatalogo = $("#cat_index_tblCatalogo").DataTable({
+			processing: true,
+			destroy: true,
+			sort: false,
+			autoWidth: false,
+			searchable: true,
+			responsive: true,
+			paging: true,
+			iDisplayLength: 50,
+			dom: "<f'row'<'col-sm-12't>><'row'<'col-sm-5'i><'col-sm-7'p>>",
+			//scrollX: true,
+			columns: [
+				{
+					title: "N°", data: null, sortable: false, className: "text-center",
+					render: function (data, type, row, meta) {
+						return meta.row + 1;
+					}
+				},										//1
+				{ title: "Código", data: "sCatCodigo", sortable: false, className: "text-center" },							//2
+				{ title: "Nombre", data: "sCatNombre", sortable: false },													//3
+				{ title: "Descripción", data: "sCatDescripcion", sortable: false },											//4
+				{ title: "Estado", data: "nCatEstado", "visible": false, sortable: false, className: "text-center" },		//5
+				{
+					title: "Estado", data: "sCatEstado", width: "80px", className: "text-center",							//6
+					render: function (data, type, row) {
+						var vsBadge = row.nCatEstado == 0 ? "badge badge-danger" : "badge badge-primary";
+						return "<span class='" + vsBadge + "'>" + data + "</span></td>";
+					}, searchable: true
+				},
+				{
+					title: "Acciones", data: "", width: "60px", visible: true, sortable: false, className: "text-center",	//7
+					render: function (data, type, row) {
+						if (type === 'display') {
+							return "<div class='btn-group text-right'>" +
+								"<a data-toggle='dropdown' class='btn-success btn-sm dropdown-toggle btn-newTable'>" +
+								"<i class='fa fa-cog fa-1x cog-new' aria-hidden='true'></i>" +
+								"<b class='caret caret-new'></b>" +
+								"</a>" +
+								"<ul class='dropdown-menu pull-right' style='padding-top: 0.5em; padding-bottom: 0.5em; z-index: 99999;'>" +
+								"<li><button type='button' class='btn btn-block btnAccion' onclick=\"cat_index_editarCatalogo('" + row.nIdCatalogo + "')\" >" +
+								"<i class='fas fa-edit' aria-hidden='true'></i> Editar</button></li>" +
+								"<li><button type='button' class='btn btn-block btnAccion' onclick=\"cat_index_configurarDetalle('" + row.sCatCodigo + "','" + row.sCatNombre + "','" + row.nIdCatalogo + "')\" >" +
+								"<i class='fas fa-edit' aria-hidden='true'></i> Configurar detalle</button></li>";
+						}
+						return 0;
+					}
+				},
+			]
+		});
+
+		cat_index_tblCatalogoDet = $("#cat_index_tblCatalogoDet").DataTable({
+			autoWidth: false,
+			sort: false,
+			responsive: true,
+			info: true,
+			dom: '<<t>ip>',
+			columns: [
+				{
+					title: "N°", data: null, width: "30px", className: "text-center",
+					render: function (data, type, row, meta) {
+						if(type=="display")
+							return meta.row + 1;
+						return data;
+					}},
+				{ title: "Nombre", data: "sCDeNombre" },
+				{ title: "Breve", data: "sCDeBreve" },
+				{ title: "Valor numérico", data: "nCDeValorNumero" },
+				{ title: "Valor texto", data: "sCDeValorTexto" },
+				{ title: "Orden", data: "nCDeOrden" },
+				{
+					title: "Estado", data: "sCDeEstado", class: "text-center", width: "60px",
+					render: function (data, type, row) {
+						var vsBadge = row.nCDeEstado == 0 ? "badge badge-danger" : "badge badge-primary";
+						return "<span class='" + vsBadge + "'>" + data + "</span></td>";
+					},
+				},
+				{
+					title: "Acciones", data: null, class: "text-center", width:"40px",
+					render: function (data, type, row, meta) {
+						if (type === 'display') {
+							return "<button type='button' title='Editar' class='btn btn-success btn-xs' style='margin:-3px;' onclick=\"cat_index_editarDet(" + meta.row + ")\"><i class='fas fa-edit' aria-hidden='true'></i></button>";
+						}
+						return data;
+					}
+				},
+			]
+		});
+	}
+
+	function cat_index_dataInicial() {
+		fnGet("@CnsRutaCfg.CATALOGO_CONSULTAR", {}, function (pobjApiRpta) {
+			if (fnVerificarApiRpta(pobjApiRpta)) {
+				cat_index_tblCatalogo.clear().draw();
+				cat_index_tblCatalogo.rows.add(pobjApiRpta.objDatos).draw().columns.adjust().responsive.recalc();
+			}
+			fnProcesando(false);
+		});
+	}
+
+	// Catalogo
+
+	function cat_index_editarCatalogo(pnIdCatalogo) {
+		fnProcesando();
+		fnGet("@CnsRutaCfg.CATALOGO_CONSULTAR", { pnIdCatalogo: pnIdCatalogo }, function (pobjApiRpta) {
+			if (fnVerificarApiRpta(pobjApiRpta)) {
+				if (pobjApiRpta.objDatos.length == 0) {
+					fnAdvertencia("La consulta no ha devuelto resultados");
+				} else {
+					cat_index_objCatalogo = pobjApiRpta.objDatos[0];
+					fnLimpiarDiv("#cat_index_divCatalogoForm");
+					fnLlenarDiv("#cat_index_divCatalogoForm", cat_index_objCatalogo);
+					cat_index_chkCatEstado.val(cat_index_objCatalogo.nCatEstado == 1);
+					cat_index_chkCatEstado.enable();
+					$("#cat_index_divModCatalogo").modal("show");
+					$("#cat_index_divModCatalogo .modal-title").text("Editar Catalogo");
+				}
+			}
+			fnProcesando(false);
+		});
+	}
+
+		function cat_index_configurarDetalle(psCatCodigo, psCatNombre, pnIdCatalago) {
+		cat_index_nIdCatalogo = pnIdCatalago;
+		fnProcesando();
+			fnGet("@CnsRutaCfg.CATALOGO_CONSULTARDET", { "psCatCodigo": psCatCodigo }, function (pobjApiRpta) {
+				if (fnVerificarApiRpta(pobjApiRpta)) {
+				cat_index_limpiarDet();
+				cat_index_tblCatalogoDet.clear().draw();
+
+				$("#cat_index_txtCatCodigoModal").val(psCatCodigo);
+				$("#cat_index_txtCatNombreModal").val(psCatNombre);
+                cat_index_arrCatalogoDet = pobjApiRpta.objDatos;
+                cat_index_llenarComboOrden();
+				cat_index_tblCatalogoDet.rows.add(cat_index_arrCatalogoDet).draw().columns.adjust().responsive.recalc();
+
+				cat_index_cambiarBotonEditar(false);
+
+				$("#cat_index_divModCatalogoDet").modal("show");
+			}
+			fnProcesando(false);
+		});
+	}
+
+	$("#cat_index_btnAgregar").click(function () {
+		cat_index_objCatalogo = {};
+		cat_index_objCatalogo.nIdCatalogo = 0;
+
+		fnLimpiarDiv("#cat_index_divCatalogoForm");
+		$("#cat_index_txtCatCodigo").val("");
+		$("#cat_index_txtCatNombre").val("");
+		$("#cat_index_txtCatDescripcion").val("");
+		cat_index_chkCatEstado.val(true);
+		cat_index_chkCatEstado.disable();
+
+		$("#cat_index_divModCatalogo .modal-title").text("Agregar Catalogo");
+		$("#cat_index_divModCatalogo").modal("show");
+	});
+
+	$("#cat_index_btnGuardar").click(function () {
+		if ($("#cat_index_frmCatalogo")[0].checkValidity()) {
+			fnPregunta("¿Está seguro de guardar catalogo?", function () {
+                fnProcesando();
+                fnLlenarObjeto("#cat_index_divCatalogoForm", cat_index_objCatalogo);
+                cat_index_objCatalogo.nCatEstado = (cat_index_chkCatEstado.val() ? 1 : 0);
+                    fnPost("@CnsRutaCfg.CATALOGO_GUARDAR", cat_index_objCatalogo, function (pobjApiRpta) {
+						if (fnVerificarApiRpta(pobjApiRpta)) {
+							$("#cat_index_divModCatalogo").modal("hide");
+							cat_index_dataInicial();
+                            fnMensaje("Se guardó catalogo exitosamente");
+                        }
+                        fnProcesando(false);
+                    });
+                });
+		} else {
+			$("#cat_index_frmCatalogo")[0].reportValidity();
+		}
+	});
+
+	// Catalogo Detalle
+
+	function cat_index_limpiarDet() {
+		cat_index_objCatalogoDet = {};
+		cat_index_objCatalogoDet.nIdCatalogoDet = 0;
+		fnLimpiarDiv("#cat_index_divCatalogoDetForm");
+		$("#cat_index_txtCDeValorNumero").val("0");
+		cat_index_chkCDeEstado.val(true);
+		cat_index_chkCDeEstado.disable();
+		cat_index_cambiarBotonEditar(false);
+	}
+	function cat_index_llenarComboOrden() {
+		$("#cat_index_cboCDeOrden").empty();
+		$("#cat_index_cboCDeOrden").append("<option value=''>- NINGUNO -</option>");
+		$.each(cat_index_arrCatalogoDet, function (pnIndice, pobjCatalogoDet) {
+			$("#cat_index_cboCDeOrden").append("<option value='" + pobjCatalogoDet.nCDeOrden + "'>" + pobjCatalogoDet.sCDeNombre + "</option>");
+		});
+	}
+	function cat_index_cambiarBotonEditar(pbEditar) {
+		if (pbEditar) {
+			$('#cat_index_btnAgregarDet').hide();
+			$('#cat_index_btnEditarDet').show();
+		} else {
+			$('#cat_index_btnAgregarDet').show();
+			$('#cat_index_btnEditarDet').hide();
+		}
+	}
+	function cat_index_editarDet(pnIndice) {
+		cat_index_limpiarDet();
+        cat_index_nCDePosicion = pnIndice;
+        cat_index_objCatalogoDet = cat_index_arrCatalogoDet[pnIndice];
+        fnLlenarDiv("#cat_index_divCatalogoDetForm", cat_index_objCatalogoDet);
+        if (pnIndice == cat_index_arrCatalogoDet.length - 1) {
+            $("#cat_index_cboCDeOrden").val("");
+        }
+        else {
+            $("#cat_index_cboCDeOrden").val(cat_index_objCatalogoDet.nCDeOrden + 1);
+        }
+        cat_index_chkCDeEstado.val(cat_index_objCatalogoDet.nCDeEstado == 1);
+        cat_index_chkCDeEstado.enable();
+        cat_index_cambiarBotonEditar(true);
+	}
+	function cat_index_validarGuardarDet() {
+		if ($("#cat_index_frmCatalogoDet")[0].checkValidity()) {
+			let vlRepetido = false;
+
+			if (cat_index_objCatalogoDet.nIdCatalogoDet == undefined || cat_index_objCatalogoDet.nIdCatalogoDet == 0) {
+				$.each(cat_index_arrCatalogoDet, function (index, value) {
+					if (value.sCDeNombre == $("#cat_index_txtCDeNombre").val()
+						|| value.nCDeValorNumero == parseInt($("#cat_index_txtCDeValorNumero").val())
+					) {
+						vlRepetido = true;
+						return;
+					}
+				});
+			}
+			//else {
+			//	$.each(cat_index_arrCatalogoDet, function (index, value) {
+			//		if ((value.sCDeNombre == $("#cat_index_txtCDeNombre").val()
+			//			|| value.nCDeValorNumero == parseInt($("#cat_index_txtCDeValorNumero").val()))
+			//			&& index != cat_index_nCDePosicion
+			//		) {
+			//			vlRepetido = true;
+			//			return;
+			//		}
+			//	});
+			//}
+
+			if (vlRepetido) {
+				fnAdvertencia("Asegúrese de no repetir nombre y/o valor numérico");
+				return false;
+			}
+			return true;
+		} else {
+			$("#cat_index_frmCatalogoDet")[0].reportValidity();
+			return false;
+		}
+	}
+	function cat_index_validarEditarDet() {
+		if ($("#cat_index_frmCatalogoDet")[0].checkValidity()) {
+			let vlRepetido = false;
+			$.each(cat_index_arrCatalogoDet, function (index, value) {
+				if ((value.sCDeNombre == $("#cat_index_txtCDeNombre").val()
+					|| value.nCDeValorNumero == parseInt($("#cat_index_txtCDeValorNumero").val()))
+					&& index != cat_index_nCDePosicion
+				) {
+					vlRepetido = true;
+					return;
+				}
+			});
+
+			if (vlRepetido) {
+				fnAdvertencia("Asegúrese de no repetir nombre y/o valor numérico");
+				return false;
+			}
+			return true;
+		} else {
+			$("#cat_index_frmCatalogoDet")[0].reportValidity();
+			return false;
+		}
+	}
+
+	$('#cat_index_btnLimpiarDet').click(function () {
+		cat_index_limpiarDet();
+	});
+
+	$('#cat_index_btnAgregarDet').click(function () {
+
+		if (cat_index_validarGuardarDet()) {
+			let vnCDePosteriorOrden = $("#cat_index_cboCDeOrden").val() == "" ? -1 : parseInt($("#cat_index_cboCDeOrden").val());
+
+			fnLlenarObjeto("#cat_index_divCatalogoDetForm", cat_index_objCatalogoDet);
+			cat_index_objCatalogoDet.nIdCatalogoDet = 0;
+			cat_index_objCatalogoDet.nIdCatalogo = cat_index_nIdCatalogo;
+			cat_index_objCatalogoDet.nCDeEstado = (cat_index_chkCDeEstado.val() ? 1 : 0);
+			cat_index_objCatalogoDet.sCDeEstado = (cat_index_chkCDeEstado.val() ? "ACTIVO" : "INACTIVO");
+
+			if (vnCDePosteriorOrden == -1) {
+				cat_index_arrCatalogoDet.push(cat_index_objCatalogoDet);
+			} else {
+
+				let vnNuevoOrden = vnCDePosteriorOrden;
+				let vnNuevaPosicion = vnNuevoOrden - 1;
+
+				let varrCatalogoDet = [];
+
+				for (var i = 0; i < cat_index_arrCatalogoDet.length; i++) {
+					if (i < vnNuevaPosicion) {
+						varrCatalogoDet.push(cat_index_arrCatalogoDet[i]);
+					} else if (i == vnNuevaPosicion) {
+						varrCatalogoDet.push(cat_index_objCatalogoDet);
+						varrCatalogoDet.push(cat_index_arrCatalogoDet[i]);
+					} else {
+						varrCatalogoDet.push(cat_index_arrCatalogoDet[i]);
+					}
+				}
+
+				cat_index_arrCatalogoDet = [];
+				cat_index_arrCatalogoDet = varrCatalogoDet;
+			}
+
+			$.each(cat_index_arrCatalogoDet, function (index) {
+				cat_index_arrCatalogoDet[index].nCDeOrden = index + 1;
+			});
+
+			cat_index_tblCatalogoDet.clear();
+			cat_index_tblCatalogoDet.rows.add(cat_index_arrCatalogoDet).draw().columns.adjust().responsive.recalc();
+
+			cat_index_llenarComboOrden();
+			cat_index_limpiarDet();
+		}
+	});
+
+	$("#cat_index_btnGuardarDet").click(function () {
+		fnPregunta("¿Está seguro de guardar detalles?", function () {
+			fnProcesando();
+			fnPost("@CnsRutaCfg.CATALOGO_GUARDARDET", cat_index_arrCatalogoDet, function (pobjApiRpta) {
+				if (fnVerificarApiRpta(pobjApiRpta)) {
+					cat_index_limpiarDet();
+					$("#cat_index_divModCatalogoDet").modal("hide");
+					fnMensaje("Se guardó detalles exitosamente");
+				}
+				fnProcesando(false);
+			});
+		});
+	});
+
+	$('#cat_index_btnEditarDet').click(function () {
+
+		if (cat_index_validarEditarDet()) {
+
+			let vnCDeOrden = cat_index_objCatalogoDet.nCDeOrden;
+			let vnCDePosicion = cat_index_nCDePosicion;
+
+			let vnCDePosteriorOrden = $("#cat_index_cboCDeOrden").val() == "" ? cat_index_arrCatalogoDet.length : parseInt($("#cat_index_cboCDeOrden").val());
+
+			let vnCambioPosiciones = 0;
+
+			if (vnCDeOrden == vnCDePosteriorOrden && vnCDePosteriorOrden != cat_index_arrCatalogoDet.length) {
+				fnAdvertencia("Asegúrese de no ordenarse antes de sí mismo");
+			} else {
+
+				if (vnCDeOrden < vnCDePosteriorOrden) {
+					vnCambioPosiciones = (vnCDePosteriorOrden - (vnCDeOrden + 1));
+				} else {
+					vnCambioPosiciones = (vnCDePosteriorOrden - vnCDeOrden);
+				}
+
+				fnLlenarObjeto("#cat_index_divCatalogoDetForm", cat_index_objCatalogoDet);
+				cat_index_objCatalogoDet.nCDeEstado = (cat_index_chkCDeEstado.val() ? 1 : 0);
+				cat_index_objCatalogoDet.sCDeEstado = (cat_index_chkCDeEstado.val() ? "ACTIVO" : "INACTIVO");
+				let varrCatalogoDet = [];
+				if (vnCambioPosiciones == 0) {
+					// llenamos objeto
+					cat_index_arrCatalogoDet[vnCDePosicion] = cat_index_objCatalogoDet;
+
+				} else if (vnCambioPosiciones < 0) {
+
+					let vnNuevoOrden = (vnCDePosteriorOrden == -1 ? cat_index_arrCatalogoDet.length : vnCDePosteriorOrden);
+					let vnNuevaPosicion = vnNuevoOrden - 1;
+
+					for (var i = 0; i < cat_index_arrCatalogoDet.length; i++) {
+						if (i < vnNuevaPosicion) {
+							varrCatalogoDet.push(cat_index_arrCatalogoDet[i]);
+						} else if (i == vnNuevaPosicion) {
+							varrCatalogoDet.push(cat_index_objCatalogoDet);
+							varrCatalogoDet.push(cat_index_arrCatalogoDet[i]);
+						} else {
+							if (i != vnCDePosicion) {
+								varrCatalogoDet.push(cat_index_arrCatalogoDet[i]);
+							}
+						}
+					}
+
+					cat_index_arrCatalogoDet = [];
+					cat_index_arrCatalogoDet = varrCatalogoDet;
+
+				} else if (vnCambioPosiciones > 0) {
+
+					let vnNuevoOrden = vnCDePosteriorOrden - 1;
+					let vnNuevaPosicion = vnNuevoOrden - 1;
+
+					for (var i = 0; i < cat_index_arrCatalogoDet.length; i++) {
+						if (i < vnNuevaPosicion) {
+							varrCatalogoDet.push(cat_index_arrCatalogoDet[i + 1]);
+						} else if (i == vnNuevaPosicion) {
+							varrCatalogoDet.push(cat_index_objCatalogoDet);
+						} else {
+							varrCatalogoDet.push(cat_index_arrCatalogoDet[i]);
+						}
+					}
+
+					cat_index_arrCatalogoDet = [];
+					cat_index_arrCatalogoDet = varrCatalogoDet;
+				}
+
+				$.each(cat_index_arrCatalogoDet, function (index) {
+					cat_index_arrCatalogoDet[index].nCDeOrden = index + 1;
+				});
+
+				cat_index_tblCatalogoDet.clear();
+				cat_index_tblCatalogoDet.rows.add(cat_index_arrCatalogoDet).draw().columns.adjust().responsive.recalc();
+
+				cat_index_llenarComboOrden();
+				cat_index_limpiarDet();
+			}
+		}
+
+	});
+
+</script>

@@ -1,0 +1,474 @@
+﻿@using Spine.Constants.Cmn;
+@using Spine.Constants.Cfg;
+@using Spine.Web.Clases;
+@using Spine.Web.Areas.Seg.Models;
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    List<Breadcrumb> breadcrumbs = new List<Breadcrumb>();
+    breadcrumbs.Add(new Breadcrumb { Name = "Roles" });
+    RolAccess vobjRolAccess = (RolAccess)ViewBag.objRolAccess;
+}
+@section PluginStyle {
+    <link rel="stylesheet" href="/Content/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="/Content/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+}
+@section Breadcrumb {
+    @Html.Partial("_Breadcrumb", breadcrumbs)
+}
+<div class="card card-info card-outline">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title m-0">Roles</h5>
+        <div class="card-tools">
+            @if ((bool)vobjRolAccess.lCrear)
+            {
+                <a id="btnCrear" class="btn btn-info btn-sm my-0 mr-0" title="Crear Rol">
+                    <i class="fas fa-plus mr-2"></i> Crear
+                </a>
+            }
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-12">
+                <table id="tblRoles" class="table table-striped table-bordered table-hover table-sm rounded"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Modal{
+    
+    @{Html.RenderAction("Ver", "Cambio", new { area = "Aud", psEtiqueta = "Rol", piEntId = EntidadConstant.Rol });}
+
+    <div id="modRol"
+         class="modal fade"
+         role="dialog"
+         tabindex="-1"
+         aria-hidden="true"
+         data-keyboard="false"
+         data-backdrop="static"
+         data-focus-on="input:first">
+
+        <div class="modal-dialog modal-md" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Crear Rol</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form role="form" id="frmRol" autocomplete="off">
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label for="txtRolNombre">Nombre <span style="color:red"> *</span> </label>
+                                <input type="text" id="txtRolNombre" class="form-control form-control-sm" name="sRolNombre" maxlength="50" required />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label for="txtRolDescripcion">Descripción</label>
+                                <textarea type="text" id="txtRolDescripcion" class="form-control form-control-sm" name="sRolDescripcion" maxlength="250"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnGuardar" class="btn btn-info btn-sm my-0 mr-0">
+                        <span class="fas fa-save mr-2"></span> Guardar
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm my-0 mr-0" data-dismiss="modal">
+                        <span class="fas fa-times mr-2"></span> Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modOpciones"
+         class="modal fade"
+         role="dialog"
+         tabindex="-1"
+         aria-hidden="true"
+         data-keyboard="false"
+         data-backdrop="static"
+         data-focus-on="input:first">
+
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar opciones</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="form-group col-md-12">
+                            <label>Rol</label>
+                            <input type="text" id="txtRolNombreOpciones" class="form-control form-control-sm" disabled />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label>Lista de opciones</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table id="tblRolOpciones" class="table table-striped table-bordered table-hover table-sm rounded"></table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnGuardarOpciones" class="btn btn-info btn-sm my-0 mr-0">
+                        <span class="fas fa-save mr-2"></span>Guardar
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm my-0 mr-0" data-dismiss="modal">
+                        <span class="fas fa-times mr-2"></span>Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section PluginScript {
+    <script src="/Content/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="/Content/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="/Content/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="/Content/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+}
+
+@section Script{
+    <script type="text/javascript">
+
+        //Titulo
+        document.title = "Roles : @CnsCadenas.WEB_TITULO";
+
+        //Variables
+        var tblRoles = null;
+        var lstRoles = [];
+        var objRol = {};
+        var tblRolOpciones = null;
+        var lstRolOpciones = [];
+
+        //Funciones
+        const crearControles = () => {
+            fnAlfanumerico("#txtRolNombre", true, "&-.");
+        }
+        const crearTablaRoles = () => {
+            tblRoles = $('#tblRoles').DataTable({
+                ...cnsDataTableOptions,
+                columns: [
+                    {
+                        title: "N°", data: null, visible: true, width: "20px", className: "text-center",
+                        render: (data, type, row, meta) => (meta.row + 1)
+                    },
+                    { title: "Nombre", data: "sRolNombre", visible: true, width: "20%" },
+                    { title: "Descripción", data: "sRolDescripcion", visible: true },
+                    {
+                        title: "Estado", data: "sRolEstado", visible: true, width: "80px", className: "text-center",
+                        render: (data, type, row, meta) => fnCrearTag("span", { sClase: (row.iRolEstado == @EstadoConstant.Activado ? "badge badge-success" : "badge badge-danger py-1"), sTexto: data }).prop("outerHTML")
+                    },
+                    {
+                        title: "Acciones", data: null, visible: true, width: "100px",
+                        render: (data, type, row, meta) => {
+                            if (type !== 'display') return data;
+
+                            let vlstData = [{ sNombre: "data-row", sValor: meta.row }];
+                            let vobjOpciones = fnCrearTag("div", { sClase: "card-action d-inline" });
+
+                            if (row.iRolEstado == @EstadoConstant.Activado) {
+
+                                if (@Convert.ToString(vobjRolAccess.lEditar).ToLower()) {
+                                    vobjOpciones.append(fnCrearTag("button", { sClase: "btn btn-info btn-xs btn-action btnEditar", sTitulo: "Editar", sIcono: "fas fa-edit", lstData: vlstData }));
+                                }
+                                if (@Convert.ToString(vobjRolAccess.lDesactivar).ToLower()) {
+                                    vobjOpciones.append(fnCrearTag("button", { sClase: "btn btn-info btn-xs btn-action btnDesactivar ml-2", sTitulo: "Desactivar", sIcono: "fas fa-times", lstData: vlstData }));
+                                }
+                                if (@Convert.ToString(vobjRolAccess.lEditarOpciones).ToLower()) {
+                                    vobjOpciones.append(fnCrearTag("button", { sClase: "btn btn-info btn-xs btn-action btnMostrarEditarOpciones ml-2", sTitulo: "Mostrar opciones", sIcono: "fas fa-list", lstData: vlstData }));
+                                }
+
+                            } else if (row.iRolEstado == @EstadoConstant.Desactivado) {
+
+                                if (@Convert.ToString(vobjRolAccess.lActivar).ToLower()) {
+                                    vobjOpciones.append(fnCrearTag("button", { sClase: "btn btn-info btn-xs btn-action btnactivar", sTitulo: "Activar", sIcono: "fas fa-check", lstData: vlstData }));
+                                }
+                            }
+                            vobjOpciones.append(fnCrearTag("button", { sClase: "btn btn-info btn-xs btn-action btnMostrarCambios ml-2", sTitulo: "Mostrar cambios", sIcono: "fas fa-clock", lstData: vlstData }));
+
+                            return vobjOpciones.prop("outerHTML");
+                        }
+                    }
+                ]
+            });
+        }
+        const crearTableRolOpciones = () => {
+            tblRolOpciones = $('#tblRolOpciones').DataTable({
+                sort: false,
+                autoWidth: false,
+                responsive: true,
+                paging: false,
+                searching: false,
+                language: { url: "/Content/plugins/datatables/jquery.dataTables.es.json" },
+                columns: [
+                    {
+                        title: "N°", data: null, visible: true, width: "20px", className: "text-center",
+                        render: (data, type, row, meta) => (meta.row + 1)
+                    },
+                    {
+                        title: "Opción", data: "sOpcRama", visible: true, width: "40%",
+                        render: (data, type, row, meta) => {
+                            if (type !== 'display') return data;
+
+                            if (row.iOpcionPadreId == undefined) {
+                                return "<b style='color:blue'>" + data + "</b>";
+                            } else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        title: "Descripción", data: "sOpcDescripcion", visible: true,
+                        render: (data, type, row, meta) => {
+                            if (type !== 'display') return data;
+
+                            if (row.lOpcActivable) {
+                                return data;
+                            } else {
+                                return "";
+                            }
+                        }
+                    },
+                    {
+                        title: "", data: "lRolOpcActivado", visible: true, width: "20px",
+                        render: (data, type, row, meta) => {
+                            if (type !== 'display') return data;
+
+                            if (row.lOpcActivable) {
+                                let vlstData = [{ sNombre: "data-row", sValor: meta.row }];
+                                let vobjChkActivo = fnCrearTag("input", { sTipo: "checkbox", sClase: "chkRolOpcionActivado", lActivo: data, lstData: vlstData });
+                                let vobjDivActivo = fnCrearTag("div", { sClase: "d-flex justify-content-center" });
+                                vobjDivActivo.append(vobjChkActivo);
+                                return vobjDivActivo.prop("outerHTML");
+                            } else {
+                                return "";
+                            }
+                        }
+                    }
+                ]
+            });
+        }
+        const crearCheckTodo = () => {
+            let vobjCabActivoTodo = fnCrearTag("input", { sTipo: "checkbox", sId: "chkRolOpcionActivadoTodos", lActivo: false });
+            let vobjDivActivoTodo = fnCrearTag("div", { sClase: "d-flex justify-content-center" });
+            $(tblRolOpciones.column(tblRolOpciones.columns.length - 1).header())
+                .attr("style", "padding: .3rem !important").text('')
+                .append(vobjDivActivoTodo.append(vobjCabActivoTodo));
+        }
+
+        const consultar = () => {
+            fnProcesando();
+            fnGet("seg/rol/consultar", {})
+                .then((pobjApiRpta) => {
+                    if (fnVerificarApiRpta(pobjApiRpta)) {
+                        lstRoles = pobjApiRpta.objDatos;
+                        tblRoles.clear().draw();
+                        tblRoles.rows.add(lstRoles).draw().columns.adjust().responsive.recalc();
+                    }
+                    fnProcesando(false);
+                });
+        }
+        const mostrarCrear = () => {
+            if (@Convert.ToString(vobjRolAccess.lCrear).ToLower()) {
+                objRol = { iRolId: 0 };
+                fnLimpiarDiv("#frmRol");
+                $("#modRol .modal-title").text("Crear Rol");
+                $("#modRol").modal({ backdrop: "static", keyboard: false });
+                $("#modRol").modal("show");
+            } else {
+                fnAdvertencia("Ud. no tiene permiso para crear rol.");
+            }
+        }
+        const mostrarEditar = (event) => {
+             if (@Convert.ToString(vobjRolAccess.lEditar).ToLower()) {
+                fnLimpiarDiv("#frmRol");
+                let viFila = event.currentTarget.getAttribute("data-row");
+                objRol = tblRoles.row(viFila).data();
+                fnLlenarDiv("#frmRol", objRol);
+                $("#modRol .modal-title").text("Editar Rol");
+                $("#modRol").modal("show");
+            } else {
+                fnAdvertencia("Ud. no tiene permiso para editar rol.");
+            }
+        }
+        const guardar = () => {
+            if (@Convert.ToString(vobjRolAccess.lCrear).ToLower() || @Convert.ToString(vobjRolAccess.lEditar).ToLower()) {
+                if ($("#frmRol")[0].checkValidity()) {
+                    fnPregunta("¿Esta seguro de guardar rol?", function () {
+                        fnProcesando();
+                        fnLlenarObjeto("#frmRol", objRol);
+                        objRol.iRolEstado = @EstadoConstant.Activado;
+
+                        if (objRol.iRolId == 0) {
+                            fnPost('seg/rol/crear', objRol)
+                                .then((pobjApiRpta) => {
+                                    if (fnVerificarApiRpta(pobjApiRpta)) {
+                                        fnLimpiarDiv("#frmRol");
+                                        $("#modRol").modal("hide");
+                                        fnMensaje("Se creó rol exitosamente.", pobjApiRpta.sTipo);
+                                        consultar();
+                                    } else {
+                                        fnProcesando(false);
+                                    }
+                            });
+                        } else {
+                            fnPut('seg/rol/editar', objRol)
+                                .then((pobjApiRpta) => {
+                                    if (fnVerificarApiRpta(pobjApiRpta)) {
+                                        fnLimpiarDiv("#frmRol");
+                                        $("#modRol").modal("hide");
+                                        fnMensaje("Se editó rol exitosamente.", pobjApiRpta.sTipo);
+                                        consultar();
+                                    } else {
+                                        fnProcesando(false);
+                                    }
+                                });
+                        }
+                    });
+                } else {
+                    $("#frmRol")[0].reportValidity();
+                }
+            } else {
+                fnAdvertencia("Ud. no tiene permiso para crear o editar rol.");
+            }
+        }
+        const activar = (event) => {
+            if (@Convert.ToString(vobjRolAccess.lActivar).ToLower()) {
+                let viFila = event.currentTarget.getAttribute("data-row");
+                let viRolId = tblRoles.row(viFila).data().iRolId;
+                fnPregunta("¿Está seguro de activar rol?", function () {
+                    fnProcesando();
+                    fnPatch(`Seg/Rol/Activar/${viRolId}`, {})
+                        .then((pobjApiRpta) => {
+                            if (fnVerificarApiRpta(pobjApiRpta)) {
+                                fnMensaje("Se activó rol exitosamente.");
+                                lstRoles[viFila] = pobjApiRpta.objDatos;
+                                tblRoles.clear().draw();
+                                tblRoles.rows.add(lstRoles).draw().columns.adjust().responsive.recalc();
+                            }
+                            fnProcesando(false);
+                        });
+                });
+            } else {
+                fnAdvertencia("Ud. no tiene permiso para activar rol.");
+            }
+        }
+        const desactivar = (event) => {
+             if (@Convert.ToString(vobjRolAccess.lDesactivar).ToLower()) {
+                let viFila = event.currentTarget.getAttribute("data-row");
+                let viRolId = tblRoles.row(viFila).data().iRolId;
+                fnPregunta("¿Está seguro de desactivar rol?", function () {
+                    fnProcesando();
+                    fnPatch(`Seg/Rol/Desactivar/${viRolId}`, {})
+                        .then((pobjApiRpta) => {
+                            if (fnVerificarApiRpta(pobjApiRpta)) {
+                                fnMensaje("Se desactivó rol exitosamente.");
+                                lstRoles[viFila] = pobjApiRpta.objDatos;
+                                tblRoles.clear().draw();
+                                tblRoles.rows.add(lstRoles).draw().columns.adjust().responsive.recalc();
+                            }
+                            fnProcesando(false);
+                        });
+                });
+            } else {
+                fnAdvertencia("Ud. no tiene permiso para desactivar rol.");
+            }
+        }
+
+        const mostrarEditarOpciones = (event) => {
+            if (@Convert.ToString(vobjRolAccess.lEditarOpciones).ToLower()) {
+                fnProcesando();
+                objRol = tblRoles.row(event.currentTarget.getAttribute("data-row")).data();
+                fnGet(`seg/rol/consultarOpciones/${objRol.iRolId}`)
+                    .then((pobjApiRpta) => {
+                        if (fnVerificarApiRpta(pobjApiRpta)) {
+                            $("#txtRolNombreOpciones").val(objRol.sRolNombre);
+                            lstRolOpciones = pobjApiRpta.objDatos;
+                            tblRolOpciones.clear().draw();
+                            tblRolOpciones.rows.add(lstRolOpciones).draw().columns.adjust().responsive.recalc();
+                            crearCheckTodo();
+                            $("#chkRolOpcionActivadoTodos").prop("checked", lstRolOpciones.filter((x) => x.lRolOpcActivado).length === lstRolOpciones.filter(x => x.lOpcActivable).length);
+                            $("#modOpciones").modal({ backdrop: "static", keyboard: false });
+                            $("#modOpciones").modal("show");
+                        }
+                        fnProcesando(false);
+                    });
+            } else {
+                fnAdvertencia("Ud. no tiene permiso para editar opciones.");
+            }
+        }
+        const activarOpcion = (event) => {
+            if (@Convert.ToString(vobjRolAccess.lEditarOpciones).ToLower()) {
+                let viRolId = tblRolOpciones.row(event.currentTarget.getAttribute("data-row")).data().iRolId;
+                let viOpcionId = tblRolOpciones.row(event.currentTarget.getAttribute("data-row")).data().iOpcionId;
+                let vobjRolOpcion = lstRolOpciones.find((x) => (x.iRolId == viRolId && x.iOpcionId == viOpcionId));
+                if (vobjRolOpcion) vobjRolOpcion.lRolOpcActivado = event.currentTarget.checked;
+                $("#chkRolOpcionActivadoTodos").prop("checked", lstRolOpciones.filter((x) => x.lRolOpcActivado).length === lstRolOpciones.filter(x => x.lOpcActivable).length);
+            } else {
+                fnAdvertencia("Ud. no tiene permiso para editar opciones.");
+            }
+        }
+        const activarTodasOpciones = (event) => {
+            if (@Convert.ToString(vobjRolAccess.lEditarOpciones).ToLower()) {
+                lstRolOpciones.filter(x => x.lOpcActivable).map(x => x.lRolOpcActivado = event.currentTarget.checked);
+                tblRolOpciones.clear().draw();
+                tblRolOpciones.rows.add(lstRolOpciones).draw().columns.adjust().responsive.recalc();
+            } else {
+                fnAdvertencia("Ud. no tiene permiso para editar opciones.");
+            }
+        }
+        const guardarOpciones = () => {
+            if (@Convert.ToString(vobjRolAccess.lEditarOpciones).ToLower()) {
+                fnPregunta("¿Está seguro de guardar opciones?", () => {
+                    fnProcesando();
+                    fnPut(`seg/rol/editarOpciones/${objRol.iRolId}`, lstRolOpciones)
+                        .then((pobjApiRpta) => {
+                            if (fnVerificarApiRpta(pobjApiRpta)) {
+                                fnMensaje("Se editaron opciones exitosamente.");
+                                $("#modOpciones").modal("hide");
+                            }
+                            fnProcesando(false);
+                        });
+                });
+            } else {
+                fnAdvertencia("Ud. no tiene permiso para editar opciones.");
+            }
+        }
+
+        const mostrarCambios_Rol = (event) => {
+            objRol = tblRoles.row(event.currentTarget.getAttribute("data-row")).data();
+            mostrarCambios({ sIdentificador: objRol.sRolNombre, iCamRegistro: objRol.iRolId });
+        }
+
+        $(document).ready(() => {
+            crearControles();
+            crearTablaRoles();
+            crearTableRolOpciones();
+            consultar();
+        });
+        $(document).on("click", "#btnCrear", mostrarCrear);
+        $(document).on("click", ".btnEditar", mostrarEditar);
+        $(document).on("click", "#btnGuardar", guardar);
+        $(document).on("click", ".btnactivar", activar);
+        $(document).on("click", ".btnDesactivar", desactivar);
+        $(document).on("click", ".btnMostrarEditarOpciones", mostrarEditarOpciones);
+        $(document).on("change", ".chkRolOpcionActivado", activarOpcion);
+        $(document).on("change", "#chkRolOpcionActivadoTodos", activarTodasOpciones);
+        $(document).on("click", "#btnGuardarOpciones", guardarOpciones);
+        $(document).on("click", ".btnMostrarCambios", mostrarCambios_Rol);
+    </script>
+}

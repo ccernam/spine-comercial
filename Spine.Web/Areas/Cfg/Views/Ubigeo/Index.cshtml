@@ -1,0 +1,370 @@
+﻿@using Spine.Modelos.Cfg;
+@using Spine.Web.Clases.Rutas;
+@using Spine.Web.Clases;
+@{
+    /**/
+
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Estilos -->
+<link href="~/Content/plugins/dataTables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/plugins/dataTables/responsive.dataTables.min.css" rel="stylesheet" />
+<link href="~/Content/plugins/datepicker/datepicker3.css" rel="stylesheet" />
+<link href="~/Content/plugins/select2/select2.min.css" rel="stylesheet" />
+<link href="~/Content/plugins/select2/select2-bootstrap.css" rel="stylesheet" />
+<link href="~/Content/plugins/switchery/switchery.css" rel="stylesheet" />
+
+<script type="text/javascript">
+    document.title = "Ubigeos : @CnsCadenas.WEB_TITULO";
+</script>
+
+<!-- Ubigeo  -->
+<div class="wrapper wrapper-content">
+    <div id="mostrarUbigeo" class="">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title title-header">
+                        <h5>Ubigeos</h5>
+                        <div class="ibox-tools">
+                            <a class="btn btn-success btn-sm" title="Agregar Ubigeo" onclick="" id="ubigeo_index_btnAgregar">
+                                <span class="icon-custom"><i class="fas fa-plus"></i></span>Agregar
+                            </a>
+                        </div>
+                    </div>
+                    <div class="ibox-content">
+                        <div id="contenedor-tabla-Ubigeo">
+                            <table id="ubigeo_index_tblUbigeo" class="table table-striped table-bordered" cellspacing="0"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="ubigeo_index_modUbigeo" class="modal fade ui-widget-content" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" tabindex="-1" data-focus-on="input:first" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form role="form" id="ubigeo_index_frmUbigeo" autocomplete="off">
+                <div class="modal-header" style="cursor:move">
+                    <h4 class="modal-title">Agregar Ubigeo</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12" id="ubi_index_divCampos">
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label for="ubigeo_index_txtUbiCodigo">Ubigeo Padre <span style="color:red"> *</span> </label>
+                                    <select class="form-control input-sm" placeholder="Username" id="ubigeo_index_cboUbigeoPadre"></select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label for="ubigeo_index_txtUbiNombre">Nombre <span style="color:red"> *</span> </label>
+                                    <input type="text" id="ubigeo_index_txtUbiNombre" class="leftTrim mayusculas limpiar-modal form-control input-sm" maxlength="50" required />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <!-- ESTADO -->
+                                    <label class="">Estado </label>
+                                    <div class="input-group" id="divEstado" style="display: block;padding-top: 0px;">
+                                        <input type="checkbox" class="form-control switchery-custom-enable" id="ubigeo_index_chkUbiEstado" checked>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button type="button" id="ubigeo_index_btnGuardar" class="btn btn-primary btn-sm"><span class="fas fa-save"></span> Guardar</button>
+                            <button type="button" id="ubigeo_index_btnCancelar" class="btn btn-danger btn-sm" data-dismiss="modal"><span class="fas fa-times"></span> Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Plugins -->
+<script src="~/Scripts/plugins/dataTables/datatables.min.js"></script>
+<script src="~/Scripts/plugins/dataTables/dataTables.responsive.min.js"></script>
+<script src="~/Scripts/plugins/datepicker/bootstrap-datepicker.js"></script>
+<script src="~/Scripts/plugins/select2/select2.full.min.js"></script>
+<script src="~/Scripts/plugins/switchery/switchery.js"></script>
+<script>
+    // Variables globales
+    var ubigeo_index_tblUbigeo = null;
+    var ubigeo_index_nIdUbigeo = 0;
+    var ubigeo_index_nIdUbigeoPadre = 0;
+    var ubigeo_index_ubigeoEdicion = 0;
+    var ubigeo_index_oUbigeo = {};
+    var ubigeo_index_lstUbigeosPadre = [];
+    var ubigeo_index_chkUbiEstado = new Object();
+
+    // Evento ready
+    $(document).ready(function () {
+        ubigeo_index_estiloInicial();
+        ubigeo_index_dataInicial();
+    });
+
+    // Funciones
+    function ubigeo_index_estiloInicial() {
+        $(document).on('hidden.bs.modal', '.modal', function () { $('.modal:visible').length && $(document.body).addClass('modal-open'); });
+        $.fn.modal.Constructor.prototype.enforceFocus = function () { };
+
+        fnMayusculas(".mayusculas");
+        fnSelect2({
+            sIdCombo: "#ubigeo_index_cboUbigeoPadre", sUrl: "@(CnsRutaCfg.UBIGEO_CONSULTAR)", sAtributoValor: "nIdUbigeo", sAtributoMostrar: "sUbiRuta",
+            objParametros: { pnUbiEstado: 1 }, sParametroBusqueda: "psUbiNombre", sPlaceholder: "- SELECCIONE -"
+        });
+        ubigeo_index_chkUbiEstado = fnSwitchery("#ubigeo_index_chkUbiEstado", true);
+        $(document).on('input', '.select2-search__field', function () {
+            this.value = this.value.toUpperCase();
+        });
+        ubigeo_index_tblUbigeo = $('#ubigeo_index_tblUbigeo').DataTable({
+            processing: true,
+            destroy: true,
+            sort: false,
+            autoWidth: false,
+            responsive: true,
+            iDisplayLength: 50,
+            dom: "f<'row'<'col-sm-12't>><'row'<'col-sm-5'i><'col-sm-7'p>>",
+            columns: [
+                {
+                    title: "N°", data: null, width: "40px", visible: true, sortable: true, className: "text-center",
+                    render: function (data, type, row, meta) {
+                        return meta.row + 1;
+                    }
+                },
+                { title: "Codigo", data: "sUbiCodigo", visible: true, sortable: false },
+                { title: "Nombre", data: "sUbiNombre", visible: true, sortable: false },
+                { title: "Ruta", data: "sUbiRuta", visible: true, sortable: false },
+                {
+                    title: "Estado", data: "sUbiEstado", width: "80px", visible: true, sortable: false, className: "text-center",
+                    render: function (data, type, row, meta) {
+                        var vsBadge = row.nUbiEstado === 0 ? "badge badge-danger" : "badge badge-primary";
+                        return "<span class='" + vsBadge + "'>" + data + "</span>";
+                    }
+                },
+                {
+                    title: "Acciones", data: null, width: "60px", visible: true, sortable: false, className: "text-center",
+                    render: function (data, type, row, meta) {
+                        if (type === 'display') { // <-- para no renderizar 3 veces, solo 1
+                            return "<div class='btn-group'>" +
+                                "<a data-toggle='dropdown' class='btn-success btn-sm dropdown-toggle btn-newTable'>" +
+                                "<i class='fa fa-cog fa-1x cog-new' aria-hidden='true'></i>" +
+                                "<b class='caret caret-new'></b>" +
+                                "</a>" +
+                                "<ul class='dropdown-menu pull-right' style='padding-top: 0.5em; padding-bottom: 0.5em; z-index: 99999;'>" +
+                                "<li><button type='button' class='btn btn-block btnAccion' onclick=\"ubigeo_index_editarUbigeo('" + row.nIdUbigeo + "')\" >" +
+                                "<i class='fas fa-edit' aria-hidden='true'></i> Editar</button></li>";
+                        }
+                        return data;
+                    }
+                },
+            ]
+        });
+        fnAlfanumerico("#ubigeo_index_txtUbiNombre", true, "");
+    }
+    function ubigeo_index_dataInicial() {
+        fnProcesando();
+        fnGet("Cfg/Ubigeo/Consultar", {}, function (pobjApiRpta) {
+            if (fnVerificarApiRpta(pobjApiRpta)) {
+                ubigeo_index_tblUbigeo.clear();
+                ubigeo_index_tblUbigeo.rows.add(pobjApiRpta.objDatos).draw().columns.adjust().responsive.recalc();
+                fnProcesando(false);
+            }
+        });
+        fnProcesando(false);
+    }
+    function ubigeo_index_llenarTabla(pobjApiRpta) {
+        if (fnVerificarApiRpta(pobjApiRpta)) {
+            ubigeo_index_tblUbigeo.clear();
+            var varrFilas = [];
+            $(pobjApiRpta.objDatos).each(function (i, voUbigeo) {
+                var varrCeldas = [];
+                varrCeldas[0] = voUbigeo.nIdUbigeo;
+                varrCeldas[1] = voUbigeo.nIdUbigeoPadre;
+                varrCeldas[2] = i + 1;
+                varrCeldas[3] = voUbigeo.sUbiCodigo;
+                varrCeldas[4] = voUbigeo.sUbiNombre;
+                varrCeldas[5] = voUbigeo.sUbiRuta;
+                varrCeldas[6] = voUbigeo.nUbiEstado;
+                varrCeldas[7] = voUbigeo.sUbiEstado;
+                varrCeldas[8] = "";
+                varrFilas[i] = varrCeldas;
+            });
+
+            ubigeo_index_tblUbigeo.rows.add(varrFilas).draw().columns.adjust().responsive.recalc();
+            fnProcesando(false);
+        }
+    }
+    function ubigeo_index_limpiarModal() {
+        ubigeo_index_nIdUbigeo = 0;
+        ubigeo_index_nIdUbigeoPadre = 0;
+        ubigeo_index_ubigeoEdicion = 0;
+        ubigeo_index_oUbigeo = {};
+        ubigeo_index_lstUbigeosPadre = [];
+        ubigeo_index_chkUbiEstado.val(true);
+        fnLimpiarDiv("#ubi_index_divCampos");
+    }
+    function ubigeo_index_editarUbigeo(pnIdUbigeo) {
+        fnProcesando();
+        ubigeo_index_limpiarModal();
+        ubigeo_index_nIdUbigeo = pnIdUbigeo;
+        ubigeo_index_chkUbiEstado.enable();
+        var vdctParametros = {};
+        vdctParametros.pnIdUbigeo = pnIdUbigeo;
+        fnGet("Cfg/Ubigeo/Consultar", vdctParametros, function (pobjApiRpta) {
+            if (fnVerificarApiRpta(pobjApiRpta)) {
+                ubigeo_index_oUbigeo = pobjApiRpta.objDatos[0];
+                ubigeo_index_nIdUbigeo = pobjApiRpta.objDatos[0].nIdUbigeo;
+                ubigeo_index_nIdUbigeoPadre = pobjApiRpta.objDatos[0].nIdUbigeoPadre;
+                if (ubigeo_index_nIdUbigeoPadre < 1) {
+                    fnSelect2({
+                        sIdCombo: "#ubigeo_index_cboUbigeoPadre", sUrl: "@(CnsRutaCfg.UBIGEO_CONSULTAR)", sAtributoValor: "nIdUbigeo", sAtributoMostrar: "sUbiRuta",
+                                objParametros: { pnUbiEstado: 1 }, sParametroBusqueda: "psUbiNombre", sPlaceholder: "- SELECCIONE -"
+                    });
+                }
+                else {
+                    var vdctParametros = {};
+                    vdctParametros.pnIdUbigeo = ubigeo_index_nIdUbigeoPadre;
+                    fnGet("Cfg/Ubigeo/Consultar", vdctParametros, function (pobjApiRpta) {
+                        fnSelectValor("#ubigeo_index_cboUbigeoPadre", pobjApiRpta.objDatos[0].nIdUbigeo, pobjApiRpta.objDatos[0].sUbiNombre);
+                    });
+                }
+                $("#ubigeo_index_txtUbiNombre").val(pobjApiRpta.objDatos[0].sUbiNombre);
+                ubigeo_index_chkUbiEstado.val(pobjApiRpta.objDatos[0].nUbiEstado);
+                $("#ubigeo_index_modUbigeo .modal-title").text("Editar Ubigeo");
+                $("#ubigeo_index_modUbigeo").modal("show");
+                fnProcesando(false);
+            }
+        });
+        fnProcesando(false);
+        ubigeo_index_ubigeoEdicion = 1;
+    }
+    @*function ubigeo_index_ubigeoConsultado(pobjApiRpta) {
+        if (fnVerificarApiRpta(pobjApiRpta)) {
+            ubigeo_index_oUbigeo = pobjApiRpta.objDatos[0];
+            ubigeo_index_nIdUbigeo = pobjApiRpta.objDatos[0].nIdUbigeo;
+            ubigeo_index_nIdUbigeoPadre = pobjApiRpta.objDatos[0].nIdUbigeoPadre;
+
+            if (ubigeo_index_nIdUbigeoPadre < 1) {
+                fnSelect2({
+                    sIdCombo: "#ubigeo_index_cboUbigeoPadre", sUrl: "@(CnsRutaCfg.UBIGEO_CONSULTAR)", sAtributoValor: "nIdUbigeo", sAtributoMostrar: "sUbiRuta",
+                            objParametros: { pnUbiEstado: 1 }, sParametroBusqueda: "psUbiNombre", sPlaceholder: "- SELECCIONE -"
+                });
+            }
+            else {
+                var vdctParametros = {};
+                vdctParametros.pnIdUbigeo = ubigeo_index_nIdUbigeoPadre;
+                fnGet("Cfg/Ubigeo/Consultar", vdctParametros, function (pobjApiRpta) {
+                    fnSelectValor("#ubigeo_index_cboUbigeoPadre", pobjApiRpta.objDatos[0].nIdUbigeo, pobjApiRpta.objDatos[0].sUbiNombre);
+                });
+            }
+            $("#ubigeo_index_txtUbiNombre").val(pobjApiRpta.objDatos[0].sUbiNombre);
+            ubigeo_index_chkUbiEstado.val(pobjApiRpta.objDatos[0].nUbiEstado);
+            $("#ubigeo_index_modUbigeo .modal-title").text("Editar Ubigeo");
+            $("#ubigeo_index_modUbigeo").modal("show");
+            fnProcesando(false);
+        }
+    }*@
+    function ubigeo_index_validarGuardar() {
+        var ubigeo_index_lRespuesta = true;
+
+        // Ubigeo Padre
+        if (ubigeo_index_oUbigeo.nIdUbigeoPadre <= 0) {
+            fnAdvertencia("Seleccione Ubigeo Padre válido.");
+            return false;
+        }
+
+        // Nombre
+        if ($.trim(ubigeo_index_oUbigeo.sUbiNombre).length === 0) {
+            fnAdvertencia("Ingrese Nombre.");
+            return false;
+        }
+        if (!fnValidarCampo(ubigeo_index_oUbigeo.sUbiNombre, false, true, true, "")) {
+            fnAdvertencia("Ingrese Nombre válido.");
+            return false;
+        }
+
+        // Estado
+        if (ubigeo_index_oUbigeo.nUbiEstado !== 0 && ubigeo_index_oUbigeo.nUbiEstado !== 1) {
+            fnAdvertencia("El estado del Ubigeo no es válido.");
+            return false;
+        }
+        return ubigeo_index_lRespuesta;
+    }
+    //</20190222 jvelaf>
+
+    //// Eventos
+    $("#ubigeo_index_btnAgregar").click(function () {
+        ubigeo_index_limpiarModal();
+        ubigeo_index_chkUbiEstado.disable();
+        $("#ubigeo_index_modUbigeo .modal-title").text("Agregar Ubigeo");
+        $("#ubigeo_index_modUbigeo").modal({ backdrop: "static", keyboard: false })
+        $("#ubigeo_index_modUbigeo").modal("show");
+    });
+    $("#ubigeo_index_btnGuardar").click(function () {
+        if ($("#ubigeo_index_frmUbigeo")[0].checkValidity()) {
+            ubigeo_index_oUbigeo.nIdUbigeo = ubigeo_index_nIdUbigeo;
+            ubigeo_index_oUbigeo.nIdUbigeoPadre = $("#ubigeo_index_cboUbigeoPadre").val();
+            ubigeo_index_oUbigeo.sUbiNombre = $("#ubigeo_index_txtUbiNombre").val().trim();
+            ubigeo_index_oUbigeo.nUbiEstado = $("#ubigeo_index_chkUbiEstado").is(":checked") ? 1 : 0;
+            if (ubigeo_index_validarGuardar())
+                fnPregunta("¿Esta seguro de guardar ubigeo?", function () {
+                    fnPost("Cfg/Ubigeo/Guardar", ubigeo_index_oUbigeo,
+                        function (pobjApiRpta) {
+                            if (fnVerificarApiRpta(pobjApiRpta)) {
+                                ubigeo_index_limpiarModal();
+                                $("#ubigeo_index_modUbigeo").modal("hide");
+                                fnGet("Cfg/Ubigeo/Consultar", {}, function (pobjApiRpta) {
+                                    if (fnVerificarApiRpta(pobjApiRpta)) {
+                                        ubigeo_index_tblUbigeo.clear();
+                                        ubigeo_index_tblUbigeo.rows.add(pobjApiRpta.objDatos).draw().columns.adjust().responsive.recalc();
+                                        fnProcesando(false);
+                                    }
+                                });
+                                fnMensaje("Se guardo ubigeo exitosamente!", pobjApiRpta.sTipo);
+                                ubigeo_index_limpiarModal();
+                            }
+                            fnProcesando(false);
+                    });
+                });
+        } else {
+            $("#ubigeo_index_frmUbigeo")[0].reportValidity();
+        }
+    });
+    $("#ubigeo_index_btnCancelar").click(function () {
+        ubigeo_index_limpiarModal();
+    });
+    $("#ubigeo_index_cboUbigeoPadre").change(function () {
+        if ($("#ubigeo_index_cboUbigeoPadre").val() == ubigeo_index_nIdUbigeo) {
+            fnAdvertencia("No se puede asignar el ubigeo a si mismo", "Asignacion no valida");
+            if (ubigeo_index_nIdUbigeoPadre > 0) {
+                $("#ubigeo_index_cboUbigeoPadre").val(ubigeo_index_nIdUbigeoPadre);
+            }
+            else {
+                $("#ubigeo_index_cboUbigeoPadre").val(-1);
+            }
+        }
+        else {
+            ubigeo_index_ubigeoEdicion = 0;
+            fnProcesando(false);
+        }
+    });
+    $('.scroll_content').slimscroll({
+        height: "409px"
+    });
+
+    window.onresize = function () {
+        ubigeo_index_tblUbigeo.columns.adjust().responsive.recalc();
+    }
+
+</script>

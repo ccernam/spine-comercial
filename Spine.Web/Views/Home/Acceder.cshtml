@@ -1,0 +1,73 @@
+﻿@{ Layout = "~/Views/Shared/_FullPage.cshtml"; }
+
+<div class="card">
+    <div class="card-body p-0 m-0">
+        <div class="d-flex justify-content-center align-items-center">
+            <div class="card-login-left flex-column py-5 text-center border-right">
+                <img src="~/Content/assets/img/homeet.png" class="card-login-image" />
+                <p class="login-box-msg m-0 mt-2">Homeet Coders</p>
+            </div>
+            <div class="card-login-right flex-column px-5">
+                <p class="login-box-msg">Autenticación</p>
+                <form id="frmAutenticar">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">
+                                <span class="fas fa-user"></span>
+                            </div>
+                        </div>
+                        <input type="text" class="form-control form-control-sm" value="cacerna" placeholder="Usuario" name="sUsuUsuario" id="txtUsuUsuario" autofocus>
+                    </div>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">
+                                <span class="fas fa-lock"></span>
+                            </div>
+                        </div>
+                        <input type="password" class="form-control form-control-sm" value="123" placeholder="Clave" name="sUsuClave" id="txtUsuClave">
+                    </div>
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <button type="button" class="btn btn-info btn-block btn-sm" id="btnAceptar">Aceptar</button>
+                        </div>
+                    </div>
+                    <p class="mt-1 text-center">
+                        <a class="text-sm">Olvidé mi clave</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Script
+{
+    <script type="text/javascript">
+        $("#btnAceptar").click(function () {
+            if ($("#frmAutenticar")[0].checkValidity()) {
+                fnProcesando();
+                let vobjAutenticar = {};
+                vobjAutenticar.iAplicacionId = 1;
+                fnLlenarObjeto("#frmAutenticar", vobjAutenticar);
+                fnPost("seg/sesion/autenticar", vobjAutenticar)
+                    .then((pobjApiRpta) => {
+                        if (fnVerificarApiRpta(pobjApiRpta)) {
+                            window.location.replace(fnUrlBase() + "home/index");
+                        } else {
+                            fnProcesando(false);
+                        }
+                    });
+            } else {
+                $("#frmAutenticar")[0].reportValidity();
+            }
+        });
+        $("#frmAutenticar").keypress(function (e) {
+            var key = e.which;
+            if (key == 13)  // the enter key code
+            {
+                $("#btnAceptar").click();
+                return false;
+            }
+        });
+    </script>
+}

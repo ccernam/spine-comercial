@@ -1,0 +1,309 @@
+﻿@using Spine.Entities.Cfg;
+@using Spine.Web.Clases;
+@using Spine.Constants.Cfg;
+@using Spine.Constants.Cmn;
+@using Spine.Web.Areas.Cmn.Models;
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<CatalogoItem> vlstCtgTipo = (List<CatalogoItem>)ViewBag.lstCtgTipo;
+    List<Breadcrumb> breadcrumbs = new List<Breadcrumb>();
+    breadcrumbs.Add(new Breadcrumb { Name = "Categorías" });
+    CategoriaAccess vobjCategoriaAccess = (CategoriaAccess)ViewBag.objCategoriaAccess;
+}
+
+@section PluginStyle {
+    <link rel="stylesheet" href="/Content/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="/Content/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+}
+
+@section Breadcrumb {
+    @Html.Partial("_Breadcrumb", breadcrumbs)
+}
+
+<div class="card card-info card-outline">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title m-0">Categorías</h5>
+        <div class="card-tools">
+            @if ((bool)vobjCategoriaAccess.lCrear)
+            {
+                <a id="btnCrear" class="btn btn-info btn-sm my-0 mr-0" title="Crear Categoría">
+                    <i class="fas fa-plus mr-2"></i> Crear
+                </a>
+            }
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-12">
+                <table id="tblCategorias" class="table table-striped table-bordered table-hover table-sm rounded"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Modal {
+
+    @{Html.RenderAction("Ver", "Cambio", new { area = "Aud", psEtiqueta = "Categoría", piEntId = EntidadConstant.Categoria });}
+
+    <div id="modCategoria"
+         class="modal fade"
+         role="dialog"
+         tabindex="-1"
+         aria-hidden="true"
+         data-keyboard="false"
+         data-backdrop="static"
+         data-focus-on="input:first">
+
+        <div class="modal-dialog modal-md" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Crear Categoría</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form role="form" id="frmCategoria" autocomplete="off">
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label for="cboCtgTipoProducto">
+                                    Tipo de Producto <span class="text-red">*</span>
+                                </label>
+                                <select id="cboCtgTipoProducto" class="form-control form-control-sm" name="iCtgTipoProducto" required>
+                                    <option value="">- Seleccione -</option>
+                                    @foreach (CatalogoItem vobjCtgTipo in vlstCtgTipo)
+                                    {
+                                        <option value="@vobjCtgTipo.iCatIteNumero">@vobjCtgTipo.sCatIteNombre</option>
+                                    }
+                                </select>
+                            </div>
+
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label for="txtCtgNombre">Nombre <span style="color:red">*</span></label>
+                                <input type="text" id="txtCtgNombre" class="form-control form-control-sm" name="sCtgNombre" maxlength="50" required />
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnGuardar" class="btn btn-info btn-sm my-0 mr-0">
+                        <span class="fas fa-save mr-2"></span>Guardar
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm my-0 mr-0" data-dismiss="modal">
+                        <span class="fas fa-times mr-2"></span>Cancelar
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+@section PluginScript {
+    <script src="/Content/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="/Content/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="/Content/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="/Content/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+}
+
+@section Script {
+    <script type="text/javascript">
+
+        //Titulo
+        document.title = "Categorías : @CnsCadenas.WEB_TITULO";
+
+        // Variables
+        var tblCategorias = null;
+        var lstCategorias = [];
+        var objCategoria = {};
+
+        //Funciones
+        const crearControles = () => {
+            fnAlfanumerico("#txtCtgNombre", "");
+        }
+        const crearTablaCategorias = () => {
+            tblCategorias = $('#tblCategorias').DataTable({
+                ...cnsDataTableOptions,
+                columns: [
+                    {
+                        title: "N°", data: null, visible: true, width: "40px", className: "text-center",
+                        render: (data, type, row, meta) => (meta.row + 1)
+                    },
+                    { title: "Tipo de Producto", data: "sCtgTipoProducto", visible: true, width: "20%" },
+                    { title: "Nombre", data: "sCtgNombre", visible: true },
+                    {
+                        title: "Estado", data: "sCtgEstado", visible: true, width: "80px", className: "text-center",
+                        render: (data, type, row, meta) => fnCrearTag("span", { sClase: (row.iCtgEstado == @EstadoConstant.Activado ? "badge badge-success" : "badge badge-danger py-1"), sTexto: data }).prop("outerHTML")
+                    },
+                    {
+                        title: "Acciones", data: null, visible: true, width: "60px",
+                        render: (data, type, row, meta) => {
+                            if (type !== 'display') return data;
+
+                            let vlstData = [{ sNombre: "data-row", sValor: meta.row }];
+                            let vobjOpciones = fnCrearTag("div", { sClase: "card-action d-inline" });
+
+                            if (row.iCtgEstado == @EstadoConstant.Activado) {
+                                if (@Convert.ToString(vobjCategoriaAccess.lEditar).ToLower()) {
+                                    vobjOpciones.append(fnCrearTag("button", { sClase: "btn btn-info btn-xs btn-action btnEditar", sTitulo: "Editar", sIcono: "fas fa-edit", lstData: vlstData }));
+                                }
+                                if (@Convert.ToString(vobjCategoriaAccess.lDesactivar).ToLower()) {
+                                    vobjOpciones.append(fnCrearTag("button", { sClase: "btn btn-info btn-xs btn-action btnDesactivar ml-2", sTitulo: "Desactivar", sIcono: "fas fa-times", lstData: vlstData }));
+                                }
+                            } else if (row.iCtgEstado == @EstadoConstant.Desactivado) {
+                                if (@Convert.ToString(vobjCategoriaAccess.lActivar).ToLower()) {
+                                    vobjOpciones.append(fnCrearTag("button", { sClase: "btn btn-info btn-xs btn-action btnActivar", sTitulo: "Activar", sIcono: "fas fa-check", lstData: vlstData }));
+                                }
+                            }
+                            vobjOpciones.append(fnCrearTag("button", { sClase: "btn btn-info btn-xs btn-action btnMostrarCambios ml-2", sTitulo: "Ver Cambios", sIcono: "fas fa-clock", lstData: vlstData }));
+
+                            return vobjOpciones.prop("outerHTML");
+                        }
+                    }
+                ]
+            });
+        }
+
+        const consultar = () => {
+            fnProcesando();
+            fnGet("cmn/categoria/consultar", {})
+                .then((pobjApiRpta) => {
+                    if (fnVerificarApiRpta(pobjApiRpta)) {
+                        lstCategorias = pobjApiRpta.objDatos;
+                        tblCategorias.clear().draw();
+                        tblCategorias.rows.add(lstCategorias).draw().columns.adjust().responsive.recalc();
+                    }
+                    fnProcesando(false);
+                });
+        }
+
+        const mostrarCrear = () => {
+            if (@Convert.ToString(vobjCategoriaAccess.lCrear).ToLower()) {
+                objCategoria = { iCategoriaId: 0 };
+                fnLimpiarDiv("#frmCategoria");
+                $("#modCategoria .modal-title").text("Crear Categoría");
+                $("#modCategoria").modal({ backdrop: "static", keyboard: false });
+                $("#modCategoria").modal("show");
+            } else {
+                fnAdvertencia("Ud. no tiene permiso para crear categoría");
+            }
+        }
+        const mostrarEditar = (event) => {
+            if (@Convert.ToString(vobjCategoriaAccess.lEditar).ToLower()) {
+                fnLimpiarDiv("#frmCategoria");
+                let viFila = event.currentTarget.getAttribute("data-row");
+                objCategoria = tblCategorias.row(viFila).data();
+                fnLlenarDiv("#frmCategoria", objCategoria);
+                $("#modCategoria .modal-title").text("Editar Categoría");
+                $("#modCategoria").modal("show");
+            } else {
+                fnAdvertencia("Ud. no tiene permiso para editar categoría");
+            }
+        }
+        const guardar = () => {
+            if (@Convert.ToString(vobjCategoriaAccess.lCrear).ToLower() || @Convert.ToString(vobjCategoriaAccess.lEditar).ToLower()) {
+                if ($("#frmCategoria")[0].checkValidity()) {
+                    fnPregunta("¿Está seguro de guardar categoría?", function () {
+                        fnProcesando();
+                        fnLlenarObjeto("#frmCategoria", objCategoria);
+                        objCategoria.iCtgEstado = @EstadoConstant.Activado;
+
+                        if (objCategoria.iCategoriaId == 0) {
+                            fnPost('cmn/categoria/crear', objCategoria)
+                                .then((pobjApiRpta) => {
+                                    if (fnVerificarApiRpta(pobjApiRpta)) {
+                                        fnLimpiarDiv("#frmCategoria");
+                                        $("#modCategoria").modal("hide");
+                                        fnMensaje("Se creó categoría exitosamente.", pobjApiRpta.sTipo);
+                                        consultar();
+                                    } else {
+                                        fnProcesando(false);
+                                    }
+                            });
+                        } else {
+                            fnPut('cmn/categoria/editar', objCategoria)
+                                .then((pobjApiRpta) => {
+                                    if (fnVerificarApiRpta(pobjApiRpta)) {
+                                        fnLimpiarDiv("#frmCategoria");
+                                        $("#modCategoria").modal("hide");
+                                        fnMensaje("Se editó categoría exitosamente.", pobjApiRpta.sTipo);
+                                        consultar();
+                                    } else {
+                                        fnProcesando(false);
+                                    }
+                                });
+                        }
+                    });
+                } else {
+                    $("#frmCategoria")[0].reportValidity();
+                }
+            } else {
+                fnAdvertencia("Ud. no tiene permiso para crear o editar categoría");
+            }
+        }
+
+        const activar = (event) => {
+            if (@Convert.ToString(vobjCategoriaAccess.lActivar).ToLower()) {
+                let viFila = event.currentTarget.getAttribute("data-row");
+                let viCategoriaId = tblCategorias.row(viFila).data().iCategoriaId;
+                fnPregunta("¿Está seguro de activar categoría?", function () {
+                    fnProcesando();
+                    fnPatch(`cmn/categoria/activar/${viCategoriaId}`, {})
+                        .then((pobjApiRpta) => {
+                            if (fnVerificarApiRpta(pobjApiRpta)) {
+                                fnMensaje("Se activó categoria exitosamente");
+                                lstCategorias[viFila] = pobjApiRpta.objDatos;
+                                tblCategorias.clear().draw();
+                                tblCategorias.rows.add(lstCategorias).draw().columns.adjust().responsive.recalc();
+                            }
+                            fnProcesando(false);
+                        });
+                });
+            } else {
+                fnAdvertencia("Ud. no tiene permiso para activar categoría");
+            }
+        }
+        const desactivar = (event) => {
+            if (@Convert.ToString(vobjCategoriaAccess.lDesactivar).ToLower()) {
+                let viFila = event.currentTarget.getAttribute("data-row");
+                let viCategoriaId = tblCategorias.row(viFila).data().iCategoriaId;
+                fnPregunta("¿Está seguro de desactivar categoría?", function () {
+                    fnProcesando();
+                    fnPatch(`cmn/categoria/desactivar/${viCategoriaId}`, {})
+                        .then((pobjApiRpta) => {
+                            if (fnVerificarApiRpta(pobjApiRpta)) {
+                                fnMensaje("Se desactivó categoria exitosamente");
+                                lstCategorias[viFila] = pobjApiRpta.objDatos;
+                                tblCategorias.clear().draw();
+                                tblCategorias.rows.add(lstCategorias).draw().columns.adjust().responsive.recalc();
+                            }
+                            fnProcesando(false);
+                        });
+                });
+            } else {
+                fnAdvertencia("Ud. no tiene permiso para desactivar categoría");
+            }
+        }
+        const mostrarCambios_Categoria = (event) => {
+            objCategoria = tblCategorias.row(event.currentTarget.getAttribute("data-row")).data();
+            mostrarCambios({ sIdentificador: objCategoria.sCtgNombre, iCamRegistro: objCategoria.iCategoriaId });
+        }
+
+        // Eventos
+        $(document).ready(() => {
+            fnProcesando();
+            crearControles();
+            crearTablaCategorias();
+            consultar();
+        });
+        $(document).on("click", "#btnCrear", mostrarCrear);
+        $(document).on("click", ".btnEditar", mostrarEditar);
+        $(document).on("click", "#btnGuardar", guardar);
+        $(document).on("click", ".btnActivar", activar);
+        $(document).on("click", ".btnDesactivar", desactivar);
+        $(document).on("click", ".btnMostrarCambios", mostrarCambios_Categoria);
+    </script>
+}

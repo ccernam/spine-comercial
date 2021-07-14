@@ -1,0 +1,52 @@
+﻿@using Spine.Web.Clases;
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="URL_BASE" content="@WebMetodos.GetUrlBase(Request)">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" type="image/x-icon" href="~/Content/assets/img/homeet.png" />
+    <title>Spine</title>
+
+    <link rel="stylesheet" href="/Content/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link rel="stylesheet" href="~/Content/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
+    @RenderSection("PluginStyle", required: false)
+    <link rel="stylesheet" href="/Content/assets/css/adminlte.min.css">
+    <link rel="stylesheet" href="/Content/assets/css/general.css">
+    <link rel="stylesheet" href="~/Content/assets/css/mainpage.css">
+    @RenderSection("Style", required: false)
+</head>
+<body class="sidebar-mini sidebar-collapse accent-info text-sm">
+    <div class="wrapper">
+        @Html.Partial("_Navbar")
+
+        @Html.Partial("_Sidebar")
+
+        <div class="content-wrapper">
+            @RenderSection("Breadcrumb", required: false)
+
+            <section class="content pb-3">
+                @RenderBody()
+                @RenderSection("Modal", required: false)
+            </section>
+        </div>
+
+        @Html.Partial("_Footer")
+    </div>
+
+    <script src="/Content/plugins/jquery/jquery.min.js"></script>
+    <script src="/Content/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/Content/plugins/sweetalert2/sweetalert2.min.js"></script>
+    <script src="~/Scripts/plugins/momentjs/moment.min.js"></script>
+    @RenderSection("PluginScript", required: false)
+    <script src="/Content/assets/js/adminlte.min.js"></script>
+    <script src="~/Scripts/custom/funciones.js"></script>
+    <script>
+        const vlActivado = (vnEstado) => (vnEstado === 1);
+        const vlDesactivado = (vnEstado) => (vnEstado === 0);
+    </script>
+    @RenderSection("Script", required: false)
+</body>
+</html>

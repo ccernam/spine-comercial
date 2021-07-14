@@ -1,0 +1,279 @@
+﻿@using Spine.Web.Clases.Constantes;
+@using Spine.Librerias.General;
+@using Spine.Modelos.Cmn;
+
+@{
+
+    SesionInfo objSesionInfo = (SesionInfo)Session[CnsWeb.SESION];
+    List<MUnidadMedida> vlstUnidadesMedida = (List<MUnidadMedida>)ViewData["lstUnidadesMedida"];
+}
+
+
+<!-- Estilos -->
+@*<link href="~/Content/plugins/dataTables/datatables.min.css" rel="stylesheet" />
+    <link href="~/Content/plugins/dataTables/responsive.dataTables.min.css" rel="stylesheet" />
+    <link href="~/Content/plugins/datepicker/datepicker3.css" rel="stylesheet" />
+    <link href="~/Content/plugins/select2/select2.min.css" rel="stylesheet" />
+    <link href="~/Content/plugins/select2/select2-bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/plugins/switchery/switchery.css" rel="stylesheet" />*@
+<style>
+    textarea {
+        resize: none;
+    }
+</style>
+
+<div class="wrapper wrapper-content" id="_ProCompuesto_manProducto">
+    <div id="mostrarproducto" class="">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="ibox ibox-with-footer">
+                    <div class="ibox-title title-header">
+                        <h5 id="_ProCompuesto_tituloAgregarEditar"></h5> <!--DE ACUERDO A LO QUE SE HARÁ-->
+                    </div>
+                    <div class="ibox-content">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <h3 class="title-group">Datos de Productos Compuesto  </h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="container-group">
+                            <div class="row">
+                                <input type="hidden" value="@objSesionInfo.nIdEmpresa" id="_ProCompuesto_nIdEmpresa">
+
+                                <div class="col-md-4" style="margin-top: -5px;">
+                                    <label>Producto Compuesto <span style="color:red"> *</span></label>
+                                 
+                                    <div id="_ProCompuesto_divCboProCompuesto" style="margin-top: 5px;">
+                                        <select id="_ProCompuesto_cboProCompuesto" class="js-example-basic-multiple js-states form-control"></select>
+                                    </div>
+                                    <input id="_ProCompuesto_txtProCompuesto" type="text" class="leftTrim mayusculas form-control">
+                                </div>
+                                <div class="col-md-1" id="_ProCompuesto_divProCompuestoParte">
+                                    <label>N° Parte</label>
+                                    <input id="_ProCompuesto_txtProCompuestoParte" type="text" class="leftTrim mayusculas form-control">
+                                    <input id="_ProCompuesto_txtProTipoOperacion" type="hidden">
+                                    <input id="_ProCompuesto_txtProCompuestoUnidadMedidaNombre" type="hidden">
+                                    <input id="_ProCompuesto_txtProCompuestoCodigo" type="hidden">
+                                    <input id="_ProCompuesto_txtProSeries" type="hidden">
+                                </div>
+                                <div class="col-md-2" id="_ProCompuesto_divProCompuestoUnidadMedida">
+                                    <label>U. Medida <span style="color:red"> *</span></label>
+                                    <select id="_ProCompuesto_cboProCompuestoUnidadMedida" class="form-control">
+                                        <option value="-1">- SELECCIONE -</option>
+                                        @foreach (MUnidadMedida voUnidadMedida in vlstUnidadesMedida)
+                                        {
+                                            <option value="@voUnidadMedida.nIdUnidadMedida">@voUnidadMedida.sUMeNombre</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-1">
+                                    <label>Cantidad <span style="color:red"> *</span></label>
+                                    <input id="_ProCompuesto_txtProCompuestoCantidad" type="text" class="leftTrim soloDecimal form-control input-sm" maxlength="100" disabled>
+                                </div>
+                                <div class="col-md-1" id="_ProCompuesto_divMoneda" hidden>
+                                    <label>Moneda</label>
+                                    <input id="_ProCompuesto_txtProCompuestoMoneda" type="text" class="form-control input-sm leftTrim" maxlength="100" />
+                                </div>
+                            </div>
+                            <br />
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>Detalle</label>
+                                        
+                                        <textarea id="_ProCompuesto_txtProDetalle1" name="textarea" rows="1" cols="50" class="form-control input-sm cdv-show mayusculas soloAlfanumericoDetalle " data-input="0" disabled></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h3>Lista de Productos Simples</h3>
+                                @*<hr style="margin-top: 2px; margin-bottom: 10px" />*@
+
+                                <form role="form" id="_ProCompuesto_frmProductoSimple" autocomplete="off">
+                                    <div class="container-group">
+                                        <div class="row" style="margin-bottom: 20px;">
+
+                                            <div class="col-md-4" style="margin-top: -5px;">
+                                                <label>Producto Simple <span style="color:red"> *</span></label>
+                                                <div class="input-group" id="_ProCompuesto_divCboProSimple" style="margin-top: 5px;">
+                                                    <select id="_ProCompuesto_cboProSimple" class="js-example-basic-multiple js-states form-control" required></select>
+
+                                                </div>
+
+                                                <input id="_ProCompuesto_txtProSimple" type="text" class="leftTrim mayusculas form-control" required>
+
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label>N° Parte</label>
+                                                <input id="_ProCompuesto_txtProSimpleParte" type="text" class="leftTrim mayusculas form-control">
+                                            </div>
+                                            <div class="col-md-1" id="_ProCompuesto_divGarantia">
+                                                <label>Garantia(Meses)</label>
+                                                <input id="_ProCompuesto_txtProSimpleGarantia" type="text" class="soloNumeros form-control input-sm leftTrim" maxlength="100" />
+                                            </div>
+                                            <div class="col-md-1" id="_ProCompuesto_divProSimpleUtilidad" hidden>
+                                                <label for="_ProCompuesto_txtProSimpleUtilidad">Utilidad</label>
+                                                <input id="_ProCompuesto_txtProSimpleUtilidad" type="text" class="soloDecimal form-control input-sm leftTrim" maxlength="100" disabled>
+                                            </div>
+                                            <div class="col-md-2" id="_ProCompuesto_divProSimpleUniMedida">
+                                                <label>Unid. Medida </label>
+                                                @*<select id="_ProCompuesto_cboProSimpleUnidadMedida" class="form-control" hidden>
+                <option value="-1">- SELECCIONE -</option>
+                @foreach (MUnidadMedida voUnidadMedida in vlstUnidadesMedida)
+                {
+                    <option value="@voUnidadMedida.nIdUnidadMedida">@voUnidadMedida.sUMeNombre</option>
+                }
+            </select>*@
+
+                                                <input id="_ProCompuesto_txtProSimpleUnidadMedida" type="text" class="leftTrim mayusculas form-control" disabled>
+
+                                            </div>
+
+                                            <div class="col-md-1" id="_ProCompuesto_divProSimpleUniMedida1" hidden>
+                                                <label>Unid. Medida </label>
+                                                @*<select id="_ProCompuesto_cboProSimpleUnidadMedida" class="form-control" hidden>
+                <option value="-1">- SELECCIONE -</option>
+                @foreach (MUnidadMedida voUnidadMedida in vlstUnidadesMedida)
+                {
+                    <option value="@voUnidadMedida.nIdUnidadMedida">@voUnidadMedida.sUMeNombre</option>
+                }
+            </select>*@
+
+                                                <input id="_ProCompuesto_txtProSimpleUnidadMedida1" type="text" class="leftTrim mayusculas form-control" disabled>
+
+                                            </div>
+
+                                            <div class="col-md-1" id="_ProCompuesto_divProSimpleDisponible">
+                                                <label>Disponible </label>
+                                                <input id="_ProCompuesto_txtProSimpleDisponible" type="text" class="leftTrim soloDecimalCant form-control" disabled>
+                                            </div>
+
+
+                                            <div class="col-md-1">
+                                                <label>Cantidad<span style="color:red"> *</span></label>
+                                                <input id="_ProCompuesto_txtProSimpleCantidad" type="text" class="leftTrim soloDecimalCant form-control" disabled>
+                                            </div>
+                                            <div class="col-md-1">
+                                                <label>Cantidad Total</label>
+                                                <input id="_ProCompuesto_txtProCantidadTotal" type="text" class="leftTrim soloDecimalCant form-control" disabled>
+                                            </div>
+                                            <div class="col-md-1" id="_ProCompuesto_divProSimplePrecio" hidden>
+                                                <label for="_ProCompuesto_txtProSimplePrecioVenta">Precio Venta</label>
+                                                <input id="_ProCompuesto_txtProSimplePrecioVenta" type="text" class="leftTrim soloDecimal form-control" disabled>
+                                            </div>
+                                            <div class="col-md-1" id="_ProCompuesto_divProSimplePrecioCompra" hidden>
+                                                <label for="_ProCompuesto_txtProSimplePrecioCompra">Precio Compra</label>
+                                                <input id="_ProCompuesto_txtProSimplePrecioCompra" type="text" class="leftTrim soloDecimal form-control" required>
+                                            </div>
+
+                                        </div>
+                                        <div class="row" >
+                                            <div class="col-md-12" id="_ProCompuesto_divProSerie">
+                                                <div class="form-group ">
+                                                    <label for="_ProCompuesto_txtProserie">Series <span style="color:red"> *</span></label>
+                                                    <textarea id="_ProCompuesto_txtProserie" name="textarea" rows="1" cols="50"  class="form-control input-sm cdv-show mayusculas soloalfanumerico" data-input="0" ></textarea>
+                                                   
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                       
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label for="_ProCompuesto_txtProDetalle2">Detalle</label>
+                                                    <textarea id="_ProCompuesto_txtProDetalle2" name="textarea" rows="1" cols="50" class="form-control input-sm cdv-show mayusculas soloAlfanumericoDetalle" maxlength="240"  data-input="0" disabled></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+
+                                            <div class="col-md-1" id="_ProCompuesto_divBtnSerie">
+
+                                                @*data-toggle="modal" data-target="#serie_index_modProductoSerie"*@
+                                                <button class="btn btn-sm btn-primary" type="button" id="_ProCompuesto_btnSerie" disabled><i class="fa fa-search"></i>Editar Series</button>
+
+                                            </div>
+                                            <div class="col-md-1" id="_ProCompuesto_divBtnSerie1">
+
+                                                @*data-toggle="modal" data-target="#serie_index_modProductoSerie"*@
+                                                <button class="btn btn-sm btn-primary" type="button" id="_ProCompuesto_btnSerie1" disabled><i class="fa fa-search"></i>Editar Series</button>
+
+                                            </div>
+                                            <div class="col-md-1">
+
+                                                @*data-toggle="modal" data-target="#serie_index_modProductoSerie"*@
+
+                                                <button class="btn btn-sm btn-success" type="button" id="_ProCompuesto_btnProSimpleAgregar"><i class="fa fa-plus"></i>Agregar Producto</button>
+                                            </div>
+
+                                        </div>
+                                        <br />
+                                        <div class="container-group">
+                                                <table id="_ProCompuesto_tblProductos" class="table table-striped table-bordered" cellspacing="0"></table>
+                                         </div>
+
+                                            <div class="row">
+                                                <div class="col-sm-4 col-sm-offset-8 col-md-3 col-md-offset-9">
+                                                    <div class="form-horizontal">
+
+                                                        <div class="form-group" id="_ProCompuesto_divPrecioUnitario" hidden>
+                                                            <label for="_ProCompuesto_txtPrecioUnitario" class="col-sm-5 control-label">Precio Unitario</label>
+                                                            <div class="col-sm-7">
+                                                                <input id="_ProCompuesto_txtPrecioUnitario" type="text" class="soloDecimalP form-control text-right">
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group" id="_ProCompuesto_divPrecioMinimo" hidden>
+                                                            <label for="_ProCompuesto_txtPrecioMinimo" class="col-sm-5 control-label">Precio Minimo</label>
+                                                            <div class="col-sm-7">
+                                                                <input id="_ProCompuesto_txtPrecioMinimo" type="text" class="soloDecimalP form-control text-right" disabled>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group" id="_ProCompuesto_divPrecioEditable" hidden>
+                                                            <label for="_ProCompuesto_txtPrecioEditable" class="col-sm-5 control-label">Precio Total</label>
+                                                            <div class="col-sm-7">
+                                                                <input id="_ProCompuesto_txtPrecioEditable" type="text" class="soloDecimalP leftTrim form-control text-right" disabled>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ibox-footer text-right">
+                        <button type="button" id="_ProCompuesto_btnAceptar" class="btn btn-success btn-sm"><span class="fas fa-check"></span> Aceptar</button>
+                        <button type="button" id="_ProCompuesto_btnlimpiar" class="btn btn-warning btn-sm"><span class="fas fa-eraser"></span> limpiar</button>
+                        <button type="button" id="_ProCompuesto_btnCancelarRegresar" class="btn btn-danger btn-sm"><span class="fas fa-times"></span> Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div id="compuesto-consultar-series" class="wrapper wrapper-content"></div>
+
+<!-- Plugins -->
+@*<script src="~/Scripts/plugins/dataTables/datatables.min.js"></script>
+    <script src="~/Scripts/plugins/dataTables/dataTables.responsive.min.js"></script>
+    <script src="~/Scripts/plugins/datepicker/bootstrap-datepicker.js"></script>
+    <script src="~/Scripts/plugins/select2/select2.full.min.js"></script>
+    <script src="~/Scripts/plugins/switchery/switchery.js"></script>
+    <script src="~/Scripts/plugins/fullcalendar/moment.min.js"></script>*@
+
+<script src="~/Scripts/custom/general/enums/enums.com.js"></script>
+<script src="~/Scripts/custom/general/enums/enums.cmn.js"></script>
+
+<!-- Custom -->
+<script src="~/Scripts/custom/controllers/cmn/producto.compuesto.js"></script>
+<script src="~/Scripts/custom/views/cmn/producto.compuesto.index.js"></script>

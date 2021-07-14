@@ -1,0 +1,419 @@
+﻿@using Spine.Modelos.Cfg;
+@using Spine.Web.Clases.Rutas;
+@using Spine.Web.Clases;
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<MMoneda> vlstMonedas = (List<MMoneda>)ViewData["lstMonedas"];
+}
+
+<!-- Estilos -->
+<link href="~/Content/plugins/dataTables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/plugins/dataTables/responsive.dataTables.min.css" rel="stylesheet" />
+<link href="~/Content/plugins/datepicker/datepicker3.css" rel="stylesheet" />
+<link href="~/Content/plugins/select2/select2.min.css" rel="stylesheet" />
+<link href="~/Content/plugins/select2/select2-bootstrap.css" rel="stylesheet" />
+<link href="~/Content/plugins/switchery/switchery.css" rel="stylesheet" />
+
+<script type="text/javascript">
+    document.title = "Empresas : @CnsCadenas.WEB_TITULO";
+</script>
+
+<!-- Empresas  -->
+<div class="wrapper wrapper-content">
+    <div id="mostrarEmpresa" class="">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox">
+                        <div class="ibox-title">
+                            <h5>Empresas</h5>
+                            <div class="ibox-tools">
+                                <a class="btn btn-success btn-sm" title="Agregar Empresa" onclick="" id="empresa_index_btnAgregar">
+                                    <i class="fas fa-plus"></i> Agregar
+                                </a>
+                            </div>
+                        </div>
+                        <div class="ibox-content">
+                            <div id="contenedor-tabla-Empresa">
+                                <table id="empresa_index_tblEmpresa" class="table table-striped table-bordered" cellspacing="100"></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="empresa_index_modEmpresa" class="modal fade ui-widget-content" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" tabindex="-1" data-focus-on="input:first" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <form role="form" id="empresa_index_frmEmpresa" autocomplete="off">
+                <div class="modal-header">
+                    <h4 class="modal-title">Agregar Empresa</h4>
+                </div>
+                <div class="modal-body" id="emp_index_divEmpresaForm">
+                    <div class="row">
+                        <div class="col-md-12" id="emp_index_divCampos">
+                            <div class="row">
+                                <!-- RUC -->
+                                <div class="form-group col-md-4">
+                                    <label for="empresa_index_txtEmpRuc">Ruc <span style="color:red"> *</span> </label>
+                                    <input type="text" id="empresa_index_txtEmpRuc" name="sEmpRuc" class="form-control input-sm soloNumeros limpiar-modal" minlength="11 " maxlength="11" required />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <!-- Razon Social -->
+                                <div class="form-group col-md-6">
+                                    <label for="empresa_index_txtEmpRazonSocial">Razon Social <span style="color:red"> *</span> </label>
+                                    <input type="text" id="empresa_index_txtEmpRazonSocial" name="sEmpRazonSocial" class="alfaNumerico mayusculas limpiar-modal form-control input-sm" maxlength="80" required />
+                                </div>
+                                <!-- Razon Comercial -->
+                                <div class="form-group col-md-6">
+                                    <label for="empresa_index_txtEmpRazonComercial">Razon Comercial </label>
+                                    <input type="text" id="empresa_index_txtEmpRazonComercial" name="sEmpRazonComercial" class="alfaNumerico mayusculas limpiar-modal form-control input-sm dt-input-alfanum" maxlength="80" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <!-- Ubigeo -->
+                                <div class="form-group col-md-6">
+                                    <label for="empresa_index_cboUbigeo">Ubigeo <span style="color:red"> *</span> </label>
+                                    <div>
+                                        <select id="empresa_index_cboUbigeo" name="nIdUbigeo|sUbiRuta" class="form-control " required></select>
+                                    </div>
+                                </div>
+                                <!-- Dirección -->
+                                <div class="form-group col-md-6">
+                                    <label for="empresa_index_txtEmpDireccion">Dirección <span style="color:red"> *</span> </label>
+                                    <input type="text" id="empresa_index_txtEmpDireccion" name="sEmpDireccion" class="alfaNumerico mayusculas limpiar-modal form-control input-sm dt-input-alfanum" maxlength="120" required />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <!-- Teléfono -->
+                                <div class="form-group col-md-6">
+                                    <label for="empresa_index_txtEmpTelefono">Teléfono</label>
+                                    <input type="text" id="empresa_index_txtEmpTelefono" name="sEmpTelefono" class="limpiar-modal form-control input-sm dt-input-numero soloNumeros" maxlength="10" />
+                                </div>
+                                <!-- Email -->
+                                <div class="form-group col-md-6">
+                                    <label for="empresa_index_txtEmpEmail">Email</label>
+                                    <input type="text" id="empresa_index_txtEmpEmail" name="sEmpEmail" class="form-control limpiar-modal input-sm" maxlength="80" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <!-- Moneda -->
+                                <div class="form-group col-md-6">
+                                    <label for="empresa_index_cboMoneda">Moneda <span style="color:red"> *</span></label>
+                                    <select class="form-control input-sm" name="nIdMoneda|sMonNombre" placeholder="Username" id="empresa_index_cboMoneda" required>
+                                        <option value="">- SELECCIONE -</option>
+                                        @foreach (MMoneda voMoneda in vlstMonedas)
+                                        {
+                                            <option value="@voMoneda.nIdMoneda">@voMoneda.sMonNombre</option>
+                                        }
+                                    </select>
+                                </div>
+                                <!-- Banco -->
+                                <div class="form-group col-md-3">
+                                    <label for="empresa_index_txtEmpNombreBanco">Nombre de Banco</label>
+                                    <input type="text" id="empresa_index_txtEmpNombreBanco" class="mayuscula limpiar-modal form-control input-sm dt-input-numero" maxlength="80" />
+                                </div>
+                                <!-- Nro. de Cuenta -->
+                                <div class="form-group col-md-3">
+                                    <label for="empresa_index_txtEmpNroCuenta">Nro. de Cuenta</label>
+                                    <input type="text" id="empresa_index_txtEmpNroCuenta" class="form-control limpiar-modal input-sm personalizado" maxlength="30" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <!-- Estado -->
+                                <div class="form-group col-md-4">
+                                    <label class="">Estado <span style="color:red"> *</span></label>
+                                    <div class="input-group" id="divEstado" style="display: block;padding-top: 0px;">
+                                        <input type="checkbox" name="sEmpEstado" class="form-control switchery-custom-enable" id="empresa_index_chkEmpEstado" checked>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button type="button" id="empresa_index_btnGuardar" class="btn btn-primary btn-sm"><span class="fas fa-save"></span> Guardar</button>
+                            <button type="button" id="empresa_index_btnCerrar" class="btn btn-danger btn-sm" data-dismiss="modal"><span class="fas fa-times"></span> Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Plugins -->
+<script src="~/Scripts/plugins/dataTables/datatables.min.js"></script>
+<script src="~/Scripts/plugins/dataTables/dataTables.responsive.min.js"></script>
+<script src="~/Scripts/plugins/datepicker/bootstrap-datepicker.js"></script>
+<script src="~/Scripts/plugins/select2/select2.full.min.js"></script>
+<script src="~/Scripts/plugins/switchery/switchery.js"></script>
+<script>
+    // Variables globales
+    var empresa_index_tblEmpresa = null;
+    var empresa_index_nIdEmpresa = 0;
+    var empresa_index_oEmpresa = {};
+    var empresa_index_chkEmpEstado = new Object();
+
+    // Evento ready
+    $(document).ready(function () {
+        empresa_index_estiloInicial();
+        empresa_index_dataInicial();
+    });
+
+    // Funciones
+    function empresa_index_estiloInicial() {
+        fnMayusculas(".mayusculas");
+        fnAlfanumerico(".alfaNumerico", true, "&-.");
+        fnNumerico(".soloNumeros");
+        fnCampoPersonalizado(".personalizado", true, false, false, "-")
+
+        $(document).on('hidden.bs.modal', '.modal', function () { $('.modal:visible').length && $(document.body).addClass('modal-open'); });
+        $.fn.modal.Constructor.prototype.enforceFocus = function () { };
+        fnSelect2({
+            sIdCombo: "#empresa_index_cboUbigeo", sUrl: "@(CnsRutaCfg.UBIGEO_CONSULTAR)", sAtributoValor: "nIdUbigeo", sAtributoMostrar: "sUbiRuta",
+            objParametros: { pnUbiEstado: 1 }, sParametroBusqueda: "psUbiNombre", sPlaceholder: "- SELECCIONE -"
+        });
+        fnMayusculas(".select2-search__field");
+        empresa_index_chkEmpEstado = fnSwitchery("#empresa_index_chkEmpEstado");
+        empresa_index_tblEmpresa = $('#empresa_index_tblEmpresa').DataTable({
+            autoWidth: false,
+            responsive: true,
+            sort: false,
+            iDisplayLength: 50,
+            dom: "<'row'<'col-sm-12't>><'row'<'col-sm-5'i><'col-sm-7'p>>",
+            columns: [
+                {
+                    title: "N°", data: null, className: "text-center",
+                    render: function (data, type, row, meta) {
+                        return meta.row + 1;
+                    }
+                },
+                { title: "RUC", data: "sEmpRuc"},
+                { title: "Razón Social", data: "sEmpRazonSocial"},
+                { title: "Ubigeo", data: "sUbiRuta"},
+                { title: "Dirección", data: "sEmpDireccion"},
+                {
+                    title: "Estado", data: "sEmpEstado", width: "80px", visible: true, className: "text-center",
+                    render: function (data, type, row, meta) {
+                        let vsClass = row.nEmpEstado === 0 ? "badge badge-danger" : "badge badge-primary";
+                        return "<span class='" + vsClass + "'>" + data + "</span></td>";
+                    }
+                },
+                {
+                    title: "Acciones", data: null, width: "60px", className: "text-center",
+                    render: function (data, type, row, meta) {
+                        if (type === 'display') { // <-- para no renderizar 3 veces, solo 1
+                            return "<div class='btn-group'>" +
+                                "<a data-toggle='dropdown' class='btn-success btn-sm dropdown-toggle btn-newTable'>" +
+                                "<i class='fa fa-cog fa-1x cog-new' aria-hidden='true'></i>" +
+                                "<b class='caret caret-new'></b>" +
+                                "</a>" +
+                                "<ul class='dropdown-menu pull-right' style='padding-top: 0.5em; padding-bottom: 0.5em; z-index: 99999;'>" +
+                                "<li><button type='button' class='btn btn-block btnAccion' onclick=\"empresa_index_editarEmpresa('" + row.nIdEmpresa + "')\" >" +
+                                "<i class='fas fa-edit' aria-hidden='true'></i> Editar</button></li>";
+                        }
+                        return data;
+                    }
+                },
+            ]
+        });
+    }
+    function empresa_index_dataInicial() {
+        fnProcesando();
+        fnGet("@CnsRutaCfg.EMPRESA_CONSULTAR", {}, function (pobjApiRpta) {
+            if (fnVerificarApiRpta(pobjApiRpta)) {
+                empresa_index_tblEmpresa.clear().draw();
+                empresa_index_tblEmpresa.rows.add(pobjApiRpta.objDatos).draw().columns.adjust().responsive.recalc();
+            }
+            fnProcesando(false);
+        });
+    }
+    function empresa_index_editarEmpresa(pnIdEmpresa) {
+        fnProcesando();
+        fnGet("@CnsRutaCfg.EMPRESA_CONSULTAR", { pnIdEmpresa: pnIdEmpresa }, function (pobjApiRpta) {
+			if (fnVerificarApiRpta(pobjApiRpta)) {
+				if (pobjApiRpta.objDatos.length == 0) {
+					fnAdvertencia("La consulta no ha devuelto resultados");
+				} else {
+                    empresa_index_oEmpresa = pobjApiRpta.objDatos[0];
+                    fnLimpiarDiv("#emp_index_divCampos");
+                    fnLlenarDiv("#emp_index_divCampos", empresa_index_oEmpresa);
+                    empresa_index_chkEmpEstado.val(empresa_index_oEmpresa.nEmpEstado == 1);
+                    empresa_index_chkEmpEstado.enable();
+                    $("#empresa_index_modEmpresa").modal("show");
+                    $("#empresa_index_modEmpresa .modal-title").text("Editar Empresa");
+				}
+			}
+			fnProcesando(false);
+		});
+
+    }
+
+    // <jrodriguezs - 20190214>
+    function empresa_index_validarDatosEmpresa() {
+        var empresa_index_lRespuesta = true;
+        // R.U.C.
+        if ($.trim($("#empresa_index_txtEmpRuc").val()).length === 0) {
+            fnAdvertencia("Ingrese R.U.C.");
+            return false;
+        }
+        if ($.trim($("#empresa_index_txtEmpRuc").val()).length !== 11) {
+            fnAdvertencia("Longitud de R.U.C. debe ser de 11 caracteres");
+            return false;
+        }
+        if (!fnValidarCampo($("#empresa_index_txtEmpRuc").val(), true, false, false, "")) {
+            fnAdvertencia("Ingrese R.U.C. válido");
+            return false;
+        }
+        // Razón social
+        if ($.trim($("#empresa_index_txtEmpRazonSocial").val()).length === 0) {
+            fnAdvertencia("Ingrese Razón social");
+            return false;
+        }
+        if ($.trim($("#empresa_index_txtEmpRazonSocial").val()).length > 80) {
+            fnAdvertencia("Longitud de Razón social no debe superar 80 caracteres");
+            return false;
+        }
+        if (!fnValidarCampo($("#empresa_index_txtEmpRazonSocial").val(), true, true, true, "&-.")) {
+            fnAdvertencia("Ingrese Razón social válido");
+            return false;
+        }
+        // Razón comercial
+        if ($.trim($("#empresa_index_txtEmpTelefono").val()).length !== 0) {
+            if ($.trim($("#empresa_index_txtEmpRazonComercial").val()).length > 80) {
+                fnAdvertencia("Longitud de Razón comercial no debe superar 80 caracteres");
+                return false;
+            }
+            if (!fnValidarCampo($("#empresa_index_txtEmpRazonComercial").val(), true, true, true, "&-.")) {
+                fnAdvertencia("Ingrese Razón comercial válido");
+                return false;
+            }
+        }
+        // Ubigeo
+        if ($("#empresa_index_cboUbigeo").val() <= 0) {
+            fnAdvertencia("Ingrese Ubigeo");
+            return false;
+        }
+        // Dirección
+        if ($.trim($("#empresa_index_txtEmpDireccion").val()).length === 0) {
+            fnAdvertencia("Ingrese Dirección");
+            return false;
+        }
+        if ($.trim($("#empresa_index_txtEmpDireccion").val()).length > 120) {
+            fnAdvertencia("Longitud de Dirección no debe superar 120 caracteres");
+            return false;
+        }
+        if (!fnValidarCampo($("#empresa_index_txtEmpDireccion").val(), true, true, true, "&-.")) {
+            fnAdvertencia("Ingrese Dirección válido");
+            return false;
+        }
+        // Teléfono
+        if ($.trim($("#empresa_index_txtEmpTelefono").val()).length !== 0) {
+            if ($.trim($("#empresa_index_txtEmpTelefono").val()).length < 6) {
+                fnAdvertencia("Longitud de Teléfono no puede ser menor a 6 caracteres");
+                return false;
+            }
+            if ($.trim($("#empresa_index_txtEmpTelefono").val()).length > 10) {
+                fnAdvertencia("Longitud de Teléfono no debe superar 10 caracteres");
+                return false;
+            }
+            if (!fnValidarCampo($("#empresa_index_txtEmpTelefono").val(), true, false, false, "-")) {
+                fnAdvertencia("Ingrese Teléfono válido");
+                return false;
+            }
+        }
+        // Email
+        if ($.trim($("#empresa_index_txtEmpEmail").val()).length !== 0) {
+            if ($.trim($("#empresa_index_txtEmpEmail").val()).length > 80) {
+                fnAdvertencia("Longitud de Email no debe superar 80 caracteres");
+                return false;
+            }
+            if (!fnValidarEmail($("#empresa_index_txtEmpEmail").val())) {
+                fnAdvertencia("Ingrese Email válido");
+                return false;
+            }
+        }
+        // Moneda
+        if ($("#empresa_index_cboMoneda").val() <= 0) {
+            fnAdvertencia("Seleccione Moneda");
+            return false;
+        }
+        // Nombre de Banco
+        if ($.trim($("#empresa_index_txtEmpNombreBanco").val()).length !== 0) {
+            if ($.trim(empresa_index_oEmpresa.sEmpNombreBanco).length > 80) {
+                fnAdvertencia("Longitud de Nombre de Banco no debe superar 80 caracteres");
+                return false;
+            }
+        }
+        //Nro. de Cuenta
+        if ($.trim($("#empresa_index_txtEmpNroCuenta").val()).length !== 0) {
+            if ($.trim($("#empresa_index_txtEmpNroCuenta").val()).length > 30) {
+                fnAdvertencia("Longitud de Nro. de Cuenta no debe superar 30 caracteres");
+                return false;
+            }
+            if (!fnValidarCampo($("#empresa_index_txtEmpNroCuenta").val(), true, false, false, "-")) {
+                fnAdvertencia("Ingrese Nro. de Cuenta válido");
+                return false;
+            }
+        }
+        //Estado
+        if (empresa_index_oEmpresa.nIdEmpresa == 0 && empresa_index_chkEmpEstado.val() != true) {
+            fnAdvertencia("El estado de la empresa debe ser activo");
+            return false;
+        }
+
+        return empresa_index_lRespuesta;
+    }
+    // </jrodriguezs - 20190214>
+
+    // Eventos
+    $("#empresa_index_btnAgregar").click(function () {
+        empresa_index_nIdEmpresa = 0;
+        empresa_index_oEmpresa = {};
+        fnLimpiarDiv("#emp_index_divCampos");
+        empresa_index_oEmpresa.nIdEmpresa = 0;
+        empresa_index_chkEmpEstado.val(true);
+        empresa_index_chkEmpEstado.disable();
+        $("#empresa_index_modEmpresa .modal-title").text("Agregar Empresa");
+        $("#empresa_index_modEmpresa").modal({ backdrop: "static", keyboard: false })
+        $("#empresa_index_modEmpresa").modal("show");
+    });
+
+    $("#empresa_index_btnGuardar").click(function () {
+
+        if ($("#empresa_index_frmEmpresa")[0].checkValidity()) {
+            if (empresa_index_validarDatosEmpresa()) {
+            fnPregunta("¿Está seguro de guardar empresa?", function () {
+                fnProcesando();
+                fnLlenarObjeto("#emp_index_divEmpresaForm", empresa_index_oEmpresa);
+                empresa_index_oEmpresa.nEmpEstado = (empresa_index_chkEmpEstado.val() ? 1 : 0);
+                fnPost("@CnsRutaCfg.EMPRESA_GUARDAR", empresa_index_oEmpresa, function (pobjApiRpta) {
+						if (fnVerificarApiRpta(pobjApiRpta)) {
+                            $("#empresa_index_modEmpresa").modal("hide");
+                            let emp_index_mensaje = (empresa_index_oEmpresa.nIdEmpresa == 0) ? ' guardó' : ' actualizó';
+                            fnMensaje("Se" + emp_index_mensaje + " empresa exitosamente.", pobjApiRpta.sTipo);
+                            empresa_index_dataInicial();
+                        }
+                        fnProcesando(false);
+                    });
+                });
+        }
+        } else {
+            $("#empresa_index_frmEmpresa")[0].reportValidity();
+            }
+
+    });
+    $('.scroll_content').slimscroll({
+        height: "409px"
+    });
+    window.onresize = function () {
+        empresa_index_tblEmpresa.columns.adjust().responsive.recalc();
+    }
+//*********************** </EVENTOS> **********************
+</script>

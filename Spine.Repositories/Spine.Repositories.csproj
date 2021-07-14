@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{E6D68BD4-F186-4C6D-8607-70E45AED1B99}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Spine.Repositories</RootNamespace>
+    <AssemblyName>Spine.Repositories</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Implementations\Aud\CambioRepository.cs" />
+    <Compile Include="Cfg\AccionRepository.cs" />
+    <Compile Include="Implementations\Aud\ErrorRepository.cs" />
+    <Compile Include="Implementations\Cfg\AplicacionRepository.cs" />
+    <Compile Include="Cfg\DaoEmpresa.cs" />
+    <Compile Include="Cfg\EntidadRepository.cs" />
+    <Compile Include="Cfg\DaoMenu.cs" />
+    <Compile Include="Cfg\DaoMoneda.cs" />
+    <Compile Include="Cfg\DaoOpcion.cs" />
+    <Compile Include="Cfg\DaoParametro.cs" />
+    <Compile Include="Implementations\Cfg\CatalogoRepository.cs" />
+    <Compile Include="Implementations\Cfg\MonedaRepository.cs" />
+    <Compile Include="Implementations\Cfg\UbigeoRepository.cs" />
+    <Compile Include="Implementations\Cmn\AlmacenRepository.cs" />
+    <Compile Include="Implementations\Cmn\CategoriaRepository.cs" />
+    <Compile Include="Cmn\PersonaRepository.cs" />
+    <Compile Include="Cmn\DaoProducto.cs" />
+    <Compile Include="Implementations\Cmn\MarcaRepository.cs" />
+    <Compile Include="Implementations\Cmn\SucursalRepository.cs" />
+    <Compile Include="Cmn\DaoTipoCambio.cs" />
+    <Compile Include="Com\DaoFacturaVenta.cs" />
+    <Compile Include="Com\DaoNotaCreditoVenta.cs" />
+    <Compile Include="Implementations\Cmn\TipoCambioRepository.cs" />
+    <Compile Include="Implementations\Cmn\UnidadMedidaRepository.cs" />
+    <Compile Include="Interfaces\Aud\ICambioRepository.cs" />
+    <Compile Include="Interfaces\Aud\IErrorRepository.cs" />
+    <Compile Include="Interfaces\Cfg\IAplicacionRepository.cs" />
+    <Compile Include="Interfaces\Cfg\ICatalogoRepository.cs" />
+    <Compile Include="Interfaces\Cfg\IMonedaRepository.cs" />
+    <Compile Include="Interfaces\Cfg\IUbigeoRepository.cs" />
+    <Compile Include="Interfaces\Cmn\IAlmacenRepository.cs" />
+    <Compile Include="Interfaces\Cmn\ICategoriaRepository.cs" />
+    <Compile Include="Interfaces\Cmn\IMarcaRepository.cs" />
+    <Compile Include="Interfaces\Cmn\IPersonaRepository.cs" />
+    <Compile Include="Interfaces\Cmn\IProductoRepository.cs" />
+    <Compile Include="Interfaces\Cmn\ISucursalRepository.cs" />
+    <Compile Include="Interfaces\Cmn\ITipoCambioRepository.cs" />
+    <Compile Include="Interfaces\Cmn\IUnidadMedidaRepository.cs" />
+    <Compile Include="Interfaces\Seg\ISesionRepository.cs" />
+    <Compile Include="Interfaces\Seg\IRolRepository.cs" />
+    <Compile Include="Interfaces\Seg\IUsuarioRepository.cs" />
+    <Compile Include="RepositoryBase.cs" />
+    <Compile Include="Lgt\DaoOrdenMovimiento.cs" />
+    <Compile Include="Lgt\DaoFacturaCompra.cs" />
+    <Compile Include="Lgt\DaoNotaCreditoCompra.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Implementations\Seg\RolRepository.cs" />
+    <Compile Include="Implementations\Seg\SesionRepository.cs" />
+    <Compile Include="Implementations\Seg\UsuarioRepository.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\.editorconfig">
+      <Link>.editorconfig</Link>
+    </None>
+    <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Spine.Constants\Spine.Constants.csproj">
+      <Project>{138064bb-7df1-4d43-b56f-347444f5bbac}</Project>
+      <Name>Spine.Constants</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Spine.Entities\Spine.Entities.csproj">
+      <Project>{16d5fd9a-6907-4d16-8238-edcadecf82ae}</Project>
+      <Name>Spine.Entities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Spine.Librerias\Spine.Librerias.csproj">
+      <Project>{a5094a93-3e4f-4fbb-ae16-9fb55b44929e}</Project>
+      <Name>Spine.Librerias</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

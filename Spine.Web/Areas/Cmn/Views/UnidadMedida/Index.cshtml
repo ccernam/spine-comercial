@@ -1,0 +1,323 @@
+﻿@using Spine.Entities.Cfg;
+@using Spine.Web.Clases;
+@using Spine.Constants.Cmn;
+@using Spine.Constants.Cfg;
+@using Spine.Web.Areas.Cmn.Models;
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    UnidadMedidaAccess vobjUnidadMedidaAccess = (UnidadMedidaAccess)ViewBag.objUnidadMedidaAccess;
+    List<Breadcrumb> breadcrumbs = new List<Breadcrumb>();
+    breadcrumbs.Add(new Breadcrumb { Name = "Unidades de Medida" });
+}
+
+@section PluginStyle {
+    <link rel="stylesheet" href="/Content/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="/Content/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+}
+
+@section Breadcrumb {
+    @Html.Partial("_Breadcrumb", breadcrumbs)
+}
+
+<div class="card card-info card-outline">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title m-0">Unidades de Medida</h5>
+        <div class="card-tools">
+            @if (vobjUnidadMedidaAccess.lCrear)
+            {
+                <a id="btnCrear" class="btn btn-info btn-sm my-0 mr-0" title="Crear Unidad de Medida">
+                    <i class="fas fa-plus mr-2"></i> Crear
+                </a>
+            }
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-12">
+                <table id="tblUnidadesMedida" class="table table-striped table-bordered table-hover table-sm rounded"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Modal {
+
+    @{Html.RenderAction("Ver", "Cambio", new { area = "Aud", psEtiqueta = "Unidad de Medida", piEntId = EntidadConstant.UnidadMedida });}
+
+    <div id="modUnidadMedida"
+         class="modal fade"
+         role="dialog"
+         tabindex="-1"
+         aria-hidden="true"
+         data-keyboard="false"
+         data-backdrop="static"
+         data-focus-on="input:first">
+
+        <div class="modal-dialog modal-md" role="document">
+            <div class="modal-content">
+                <form role="form" id="frmUnidadMedida" autocomplete="off">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Crear Unidad de Medida</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label for="txtUniMedNombre">Nombre <span class="text-red">*</span></label>
+                                <input type="text" id="txtUniMedNombre" class="form-control form-control-sm" name="sUniMedNombre" maxlength="50" required />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="txtUniMedSimbolo">Símbolo <span class="text-red">*</span></label>
+                                <input type="text" id="txtUniMedSimbolo" class="form-control form-control-sm" name="sUniMedSimbolo" maxlength="5" required />
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="txtUniMedCodigoIso">Código Iso <span class="text-red">*</span></label>
+                                <input type="text" id="txtUniMedCodigoIso" class="form-control form-control-sm" name="sUniMedCodigoIso" maxlength="5" required />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="chkUniMedDecimales">¿Permite decimales?</label>
+                                <input type="checkbox" id="chkUniMedDecimales" class="form-control form-control-sm" name="lUniMedDecimales" />
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="chkUniMedServicio">¿Es unidad de servicio?</label>
+                                <input type="checkbox" id="chkUniMedServicio" class="form-control form-control-sm" name="lUniMedServicio" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="btnGuardar" class="btn btn-info btn-sm my-0 mr-0">
+                            <span class="fas fa-save mr-2"></span>Guardar
+                        </button>
+                        <button type="button" id="btnCancelar" class="btn btn-secondary btn-sm my-0 mr-0" data-dismiss="modal">
+                            <span class="fas fa-times mr-2"></span>Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@section PluginScript {
+    <script src="/Content/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="/Content/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="/Content/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="/Content/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+}
+
+@section Script {
+    <script type="text/javascript">
+        //Titulo
+        document.title = "Unidades de Medida : @CnsCadenas.WEB_TITULO";
+
+        // Variables
+        var tblUnidadesMedida = null;
+        var lstUnidadesMedida = [];
+        var objUnidadMedida = {};
+
+        //Funciones
+        const crearTablaUnidadesMedida = () => {
+            tblUnidadesMedida = $('#tblUnidadesMedida').DataTable({
+                ...cnsDataTableOptions,
+                columns: [
+                    {
+                        title: "N°", data: null, visible: true, width: "20px", className: "text-center",
+                        render: (data, type, row, meta) => (meta.row + 1)
+                    },
+                    { title: "Nombre", data: "sUniMedNombre", visible: true },
+                    { title: "Símbolo", data: "sUniMedSimbolo", visible: true, width: "10%"  },
+                    { title: "Código Iso", data: "sUniMedCodigoIso", visible: true, width: "10%" },
+                    {
+                        title: "¿Permite decimales?", data: null, visible: true, width: "10%",
+                        render: (data, type, row, meta) => {
+                            if (type !== 'display') return data;
+                            return "<input type='checkbox' disabled" + (row.lUniMedDecimales ? " checked" : "") + "/>";
+                        }
+                    },
+                    {
+                        title: "¿Es unidad de servicio?", data: null, visible: true, width: "10%",
+                        render: (data, type, row, meta) => {
+                            if (type !== 'display') return data;
+                            return "<input type='checkbox' disabled" + (row.lUniMedServicio ? " checked" : "") + "/>";
+                        }
+                    },
+                    {
+                        title: "Estado", data: "sUniMedEstado", visible: true, width: "80px", className: "text-center",
+                        render: (data, type, row, meta) => fnCrearTag("span", { sClase: (row.iUniMedEstado == @EstadoConstant.Activado ? "badge badge-success" : "badge badge-danger py-1"), sTexto: data }).prop("outerHTML")
+                    },
+                    {
+                        title: "Acciones", data: null, visible: true, width: "60px",
+                        render: (data, type, row, meta) => {
+                            if (type !== 'display') return data;
+
+                            let vlstData = [{ sNombre: "data-row", sValor: meta.row }];
+                            let vobjOpciones = fnCrearTag("div", { sClase: "card-action d-inline" });
+
+                            if (row.iUniMedEstado == @EstadoConstant.Activado) {
+                                if (@Convert.ToString(vobjUnidadMedidaAccess.lEditar).ToLower()) {
+                                    vobjOpciones.append(fnCrearTag("button", { sClase: "btn btn-info btn-xs btn-action btnEditar", sTitulo: "Editar", sIcono: "fas fa-edit", lstData: vlstData }));
+                                }
+                                if (@Convert.ToString(vobjUnidadMedidaAccess.lDesactivar).ToLower()) {
+                                    vobjOpciones.append(fnCrearTag("button", { sClase: "btn btn-info btn-xs btn-action btnDesactivar ml-2", sTitulo: "Desactivar", sIcono: "fas fa-times", lstData: vlstData }));
+                                }
+                            } else if (row.iUniMedEstado == @EstadoConstant.Desactivado) {
+                                if (@Convert.ToString(vobjUnidadMedidaAccess.lActivar).ToLower()) {
+                                    vobjOpciones.append(fnCrearTag("button", { sClase: "btn btn-info btn-xs btn-action btnActivar", sTitulo: "Activar", sIcono: "fas fa-check", lstData: vlstData }));
+                                }
+                            }
+                            vobjOpciones.append(fnCrearTag("button", { sClase: "btn btn-info btn-xs btn-action btnVerCambios ml-2", sTitulo: "Ver Cambios", sIcono: "fas fa-clock", lstData: vlstData }));
+
+                            return vobjOpciones.prop("outerHTML");
+                        }
+                    }
+                ]
+            });
+        }
+        const crearControles = () => {
+            fnAlfanumerico("#txtUniMedNombre", "&-.");
+            fnAlfabetico("#txtUniMedSimbolo", false);
+            fnAlfabetico("#txtUniMedCodigoIso", false);
+        }
+        const consultar = () => {
+            fnProcesando();
+            fnGet("cmn/unidadmedida/consultar", {})
+                .then((pobjApiRpta) => {
+                    if (fnVerificarApiRpta(pobjApiRpta)) {
+                        lstUnidadesMedida = pobjApiRpta.objDatos;
+                        tblUnidadesMedida.clear().draw();
+                        tblUnidadesMedida.rows.add(lstUnidadesMedida).draw().columns.adjust().responsive.recalc();
+                    }
+                    fnProcesando(false);
+                });
+        }
+        const mostrarCrear = () => {
+            if (@Convert.ToString(vobjUnidadMedidaAccess.lCrear).ToLower()) {
+                objUnidadMedida = { iUnidadMedidaId: 0 };
+                fnLimpiarDiv("#frmUnidadMedida");
+                $("#modUnidadMedida .modal-title").text("Crear Unidad de Medida");
+                $("#modUnidadMedida").modal({ backdrop: "static", keyboard: false });
+                $("#modUnidadMedida").modal("show");
+            } else {
+                fnAdvertencia("Ud. no tiene permiso para crear unidad de medida");
+            }
+        }
+        const mostrarEditar = (event) => {
+            if (@Convert.ToString(vobjUnidadMedidaAccess.lEditar).ToLower()) {
+                fnLimpiarDiv("#frmUnidadMedida");
+                iFila = event.currentTarget.getAttribute("data-row");
+                objUnidadMedida = tblUnidadesMedida.row(iFila).data();
+                fnLlenarDiv("#frmUnidadMedida", objUnidadMedida);
+                $("#modUnidadMedida .modal-title").text("Editar Unidad de Medida");
+                $("#modUnidadMedida").modal("show");
+            } else {
+                fnAdvertencia("Ud. no tiene permiso para editar unidad de medida");
+            }
+        }
+        const guardar = (event) => {
+            if (@Convert.ToString(vobjUnidadMedidaAccess.lCrear).ToLower() || @Convert.ToString(vobjUnidadMedidaAccess.lEditar).ToLower()) {
+                if ($("#frmUnidadMedida")[0].checkValidity()) {
+                    fnPregunta("¿Está seguro de guardar unidad de medida?", function () {
+                        fnProcesando();
+                        fnLlenarObjeto("#frmUnidadMedida", objUnidadMedida);
+                        objUnidadMedida.iUniMedEstado = @EstadoConstant.Activado;
+
+                        if (objUnidadMedida.iUnidadMedidaId == 0) {
+                            fnPost('cmn/unidadmedida/crear', objUnidadMedida)
+                                .then((pobjApiRpta) => {
+                                    if (fnVerificarApiRpta(pobjApiRpta)) {
+                                        fnLimpiarDiv("#frmUnidadMedida");
+                                        $("#modUnidadMedida").modal("hide");
+                                        fnMensaje("Se creó unidad de medida exitosamente.", pobjApiRpta.sTipo);
+                                        consultar();
+                                    } else {
+                                        fnProcesando(false);
+                                    }
+                                });
+                        } else {
+                            fnPut('Cmn/UnidadMedida/Editar', objUnidadMedida)
+                                .then((pobjApiRpta) => {
+                                    if (fnVerificarApiRpta(pobjApiRpta)) {
+                                        fnLimpiarDiv("#frmUnidadMedida");
+                                        $("#modUnidadMedida").modal("hide");
+                                        fnMensaje("Se editó unidad de medida exitosamente.", pobjApiRpta.sTipo);
+                                        consultar();
+                                    } else {
+                                        fnProcesando(false);
+                                    }
+                                });
+                        }
+                    });
+                } else {
+                    $("#frmUnidadMedida")[0].reportValidity();
+                }
+            } else {
+                fnAdvertencia("Ud. no tiene permiso para crear o editar unidad de medida");
+            }
+        }
+        const activar = (event) => {
+            if (@Convert.ToString(vobjUnidadMedidaAccess.lActivar).ToLower()) {
+                let viFila = event.currentTarget.getAttribute("data-row");
+                let viUnidadMedidaId = tblUnidadesMedida.row(viFila).data().iUnidadMedidaId;
+                fnPregunta("¿Está seguro de activar unidad de medida?", function () {
+                    fnProcesando();
+                    fnPut(`cmn/unidadmedida/activar/${viUnidadMedidaId}`, {})
+                        .then((pobjApiRpta) => {
+                            if (fnVerificarApiRpta(pobjApiRpta)) {
+                                fnMensaje("Se activó unidad de medida exitosamente");
+                                lstUnidadesMedida[viFila] = pobjApiRpta.objDatos;
+                                tblUnidadesMedida.clear().draw();
+                                tblUnidadesMedida.rows.add(lstUnidadesMedida).draw().columns.adjust().responsive.recalc();
+                            }
+                            fnProcesando(false);
+                        });
+                });
+            } else {
+                fnAdvertencia("Ud. no tiene permiso para activar unidad de medida");
+            }
+        }
+        const desactivar = (event) => {
+            if (@Convert.ToString(vobjUnidadMedidaAccess.lDesactivar).ToLower()) {
+                let viFila = event.currentTarget.getAttribute("data-row");
+                let viUnidadMedidaId = tblUnidadesMedida.row(viFila).data().iUnidadMedidaId;
+                fnPregunta("¿Está seguro de desactivar unidad de medida?", function () {
+                    fnProcesando();
+                    fnPut(`cmn/unidadmedida/desactivar/${viUnidadMedidaId}`, {})
+                        .then((pobjApiRpta) => {
+                            if (fnVerificarApiRpta(pobjApiRpta)) {
+                                fnMensaje("Se desactivó unidad de medida exitosamente");
+                                lstUnidadesMedida[viFila] = pobjApiRpta.objDatos;
+                                tblUnidadesMedida.clear().draw();
+                                tblUnidadesMedida.rows.add(lstUnidadesMedida).draw().columns.adjust().responsive.recalc();
+                            }
+                            fnProcesando(false);
+                        });
+                });
+            } else {
+                fnAdvertencia("Ud. no tiene permiso para desactivar unidad de medida");
+            }
+        }
+        const mostrarCambios_UnidadMedida = (event) => {
+            objUnidadMedida = tblUnidadesMedida.row(event.currentTarget.getAttribute("data-row")).data();
+            mostrarCambios({ sIdentificador: objUnidadMedida.sUniMedNombre, iCamRegistro: objUnidadMedida.iUnidadMedidaId });
+        }
+
+        // Eventos
+        $(document).ready(() => {
+            crearTablaUnidadesMedida();
+            crearControles();
+            consultar();
+        });
+        $(document).on("click", "#btnCrear", mostrarCrear);
+        $(document).on("click", ".btnEditar", mostrarEditar);
+        $(document).on("click", ".btnActivar", activar);
+        $(document).on("click", ".btnDesactivar", desactivar);
+        $(document).on("click", ".btnVerCambios", mostrarCambios_UnidadMedida);
+        $(document).on("click", "#btnGuardar", guardar);
+    </script>
+}

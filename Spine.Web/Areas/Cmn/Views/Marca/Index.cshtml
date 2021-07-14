@@ -1,0 +1,288 @@
+﻿@using Spine.Entities.Cfg;
+@using Spine.Web.Clases;
+@using Spine.Web.Areas.Cmn.Models;
+@using Spine.Constants.Cfg;
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    MarcaAccess vobjMarcaAccess = (MarcaAccess)ViewBag.objMarcaAccess;
+    List<Breadcrumb> breadcrumbs = new List<Breadcrumb>();
+    breadcrumbs.Add(new Breadcrumb { Name = "Marcas" });
+}
+
+@section PluginStyle {
+    <link rel="stylesheet" href="/Content/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="/Content/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+}
+
+@section Breadcrumb {
+    @Html.Partial("_Breadcrumb", breadcrumbs)
+}
+
+<div class="card card-info card-outline">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title m-0">Marcas</h5>
+        <div class="card-tools">
+            @if (vobjMarcaAccess.lCrear)
+            {
+                <a id="btnCrear" class="btn btn-info btn-sm my-0 mr-0" title="Crear Marca">
+                    <i class="fas fa-plus mr-2"></i> Crear
+                </a>
+            }
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-12">
+                <table id="tblMarcas" class="table table-striped table-bordered table-hover table-sm rounded"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Modal {
+
+    @{Html.RenderAction("Ver", "Cambio", new { area = "Aud", psEtiqueta = "Marca", piEntId = EntidadConstant.Marca });}
+
+    <div id="modMarca"
+         class="modal fade"
+         role="dialog"
+         tabindex="-1"
+         aria-hidden="true"
+         data-keyboard="false"
+         data-backdrop="static"
+         data-focus-on="input:first">
+
+        <div class="modal-dialog modal-md" role="document">
+            <div class="modal-content">
+                <form role="form" id="frmMarca" autocomplete="off">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Crear Marca</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="divModal">
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label for="txtMarNombre">Nombre<span style="color:red"> *</span> </label>
+                                <input type="text" id="txtMarNombre" class="form-control form-control-sm" name="sMarNombre" maxlength="50" required />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label for="txtMarBreve">Breve</label>
+                                <input type="text" id="txtMarBreve" class="form-control form-control-sm" name="sMarBreve" maxlength="@ValVariable.CMN_BREVE_LONG_MAX" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="btnGuardar" class="btn btn-info btn-sm my-0 mr-0">
+                            <span class="fas fa-save mr-2"></span>Guardar
+                        </button>
+                        <button type="button" id="btnCancelar" class="btn btn-secondary btn-sm my-0 mr-0" data-dismiss="modal">
+                            <span class="fas fa-times mr-2"></span>Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@section PluginScript {
+    <script src="/Content/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="/Content/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="/Content/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="/Content/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+}
+
+@section Script {
+    <script type="text/javascript">
+        //Titulo
+        document.title = "Marcas : @CnsCadenas.WEB_TITULO";
+
+        // Variables
+        var tblMarcas = null;
+        var lstMarcas = [];
+        var objMarca = {};
+        var iFila = -1;
+
+        //Funciones
+        const iniciar = () => {
+            tblMarcas = $('#tblMarcas').DataTable({
+                ...cnsDataTableOptions,
+                columns: [
+                    {
+                        title: "N°", data: null, visible: true, width: "40px", className: "text-center",
+                        render: (data, type, row, meta) => (meta.row + 1)
+                    },
+                    { title: "Nombre", data: "sMarNombre", visible: true },
+                    { title: "Breve", data: "sMarBreve", visible: true },
+                    {
+                        title: "Estado", data: "sMarEstado", visible: true, width: "80px", className: "text-center",
+                        render: (data, type, row, meta) => fnCrearTag("span", { sClase: (row.iMarEstado == @ValCatalogoItem.AUD_ESTADO_ACTIVADO ? "badge badge-success" : "badge badge-danger py-1"), sTexto: data }).prop("outerHTML")
+                    },
+                    {
+                        title: "Acciones", data: null, visible: true, width: "100px",
+                        render: (data, type, row, meta) => {
+                            if (type !== 'display') return data;
+
+                            let vlstData = [{ sNombre: "data-row", sValor: meta.row }];
+                            let vobjOpciones = fnCrearTag("div", { sClase: "card-action d-inline" });
+
+                            if (row.iMarEstado == @ValCatalogoItem.AUD_ESTADO_ACTIVADO) {
+                                if (@Convert.ToString(ViewBag.lEditar).ToLower()) {
+                                    vobjOpciones.append(fnCrearTag("button", { sClase: "btn btn-info btn-xs btn-action btnEditar", sTitulo: "Editar", sIcono: "fas fa-edit", lstData: vlstData }));
+                                }
+                                if (@Convert.ToString(ViewBag.lDesactivar).ToLower()) {
+                                    vobjOpciones.append(fnCrearTag("button", { sClase: "btn btn-info btn-xs btn-action btnDesactivar ml-2", sTitulo: "Desactivar", sIcono: "fas fa-times", lstData: vlstData }));
+                                }
+                            } else if (row.iMarEstado == @ValCatalogoItem.AUD_ESTADO_DESACTIVADO) {
+                                if (@Convert.ToString(ViewBag.lActivar).ToLower()) {
+                                    vobjOpciones.append(fnCrearTag("button", { sClase: "btn btn-info btn-xs btn-action btnActivar", sTitulo: "Activar", sIcono: "fas fa-check", lstData: vlstData }));
+                                }
+                            }
+                            vobjOpciones.append(fnCrearTag("button", { sClase: "btn btn-info btn-xs btn-action btnVerCambios ml-2", sTitulo: "Ver Cambios", sIcono: "fas fa-clock", lstData: vlstData }));
+
+                            return vobjOpciones.prop("outerHTML");
+                        }
+                    }
+                ]
+            });
+            fnAlfanumerico("#txtMarNombre", "@ValVariable.CMN_NOMBRE_SIMBOLOS");
+            fnAlfanumerico("#txtMarBreve", "@ValVariable.CMN_BREVE_SIMBOLOS");
+        }
+        const consultar = () => {
+            fnProcesando();
+            fnGet("Cmn/Marca/Consultar", {})
+                .then((pobjApiRpta) => {
+                    if (fnVerificarApiRpta(pobjApiRpta)) {
+                        lstMarcas = pobjApiRpta.objDatos;
+                        tblMarcas.clear().draw();
+                        tblMarcas.rows.add(lstMarcas).draw().columns.adjust().responsive.recalc();
+                    }
+                    fnProcesando(false);
+                });
+        }
+
+        // Eventos
+        $(document).ready(() => {
+            iniciar();
+            consultar();
+        });
+        $(document).on("click", "#btnCrear", function () {
+            if (@Convert.ToString(ViewBag.lCrear).ToLower()) {
+                objMarca = { iMarId: 0 };
+                fnLimpiarDiv("#frmMarca");
+                $("#modMarca .modal-title").text("Crear Marca");
+                $("#modMarca").modal({ backdrop: "static", keyboard: false });
+                $("#modMarca").modal("show");
+            } else {
+                fnAdvertencia("Ud. no tiene permiso para crear marca");
+            }
+        });
+        $(document).on("click", ".btnEditar", function (event) {
+            if (@Convert.ToString(ViewBag.lEditar).ToLower()) {
+                fnLimpiarDiv("#divMarca");
+                iFila = event.currentTarget.getAttribute("data-row");
+                objMarca = tblMarcas.row(iFila).data();
+                fnLlenarDiv("#divMarca", objMarca);
+                $("#modMarca .modal-title").text("Editar Marca");
+                $("#modMarca").modal("show");
+            } else {
+                fnAdverValVariableeCMN_NOMBRE_SIMBOLOSncia("Ud. no tiene permiso para editar marca");
+            }
+        });
+        $(document).on("click", ".btnActivar", function (event) {
+            if (@Convert.ToString(ViewBag.lActivar).ToLower()) {
+                let viFila = event.currentTarget.getAttribute("data-row");
+                let viMarId = tblMarcas.row(viFila).data().iMarId;
+                fnPregunta("¿Está seguro de activar marca?", function () {
+                    fnProcesando();
+                    fnPost(`Cmn/Marca/Activar/${viMarId}`, {})
+                        .then((pobjApiRpta) => {
+                            if (fnVerificarApiRpta(pobjApiRpta)) {
+                                fnMensaje("Se activó marca exitosamente");
+                                lstMarcas[viFila] = pobjApiRpta.objDatos;
+                                tblMarcas.clear().draw();
+                                tblMarcas.rows.add(lstMarcas).draw().columns.adjust().responsive.recalc();
+                            }
+                            fnProcesando(false);
+                        });
+                });
+            } else {
+                fnAdvertencia("Ud. no tiene permiso para activar marca");
+            }
+        });
+        $(document).on("click", ".btnDesactivar", function (event) {
+            if (@Convert.ToString(ViewBag.lDesactivar).ToLower()) {
+                let viFila = event.currentTarget.getAttribute("data-row");
+                let viMarId = tblMarcas.row(viFila).data().iMarId;
+                fnPregunta("¿Está seguro de desactivar marca?", function () {
+                    fnProcesando();
+                    fnPost(`Cmn/Marca/Desactivar/${viMarId}`, {})
+                        .then((pobjApiRpta) => {
+                            if (fnVerificarApiRpta(pobjApiRpta)) {
+                                fnMensaje("Se desactivó marca exitosamente");
+                                lstMarcas[viFila] = pobjApiRpta.objDatos;
+                                tblMarcas.clear().draw();
+                                tblMarcas.rows.add(lstMarcas).draw().columns.adjust().responsive.recalc();
+                            }
+                            fnProcesando(false);
+                        });
+                });
+            } else {
+                fnAdvertencia("Ud. no tiene permiso para desactivar marca");
+            }
+        });
+        $(document).on("click", ".btnVerCambios", function (event) {
+            fnProcesando();
+            var vobjMarca = tblMarcas.row(event.currentTarget.getAttribute("data-row")).data();
+            cam_ver_iniciar({ sIdentificador: vobjMarca.sMarNombre, iCamRegistro: vobjMarca.iMarId })
+                .then(() => {
+                    fnProcesando(false);
+                });
+        });
+        $(document).on("click", "#btnGuardar", function () {
+            if (@Convert.ToString(ViewBag.lCrear).ToLower() || @Convert.ToString(ViewBag.lEditar).ToLower()) {
+                if ($("#frmMarca")[0].checkValidity()) {
+                    fnPregunta("¿Esta seguro de guardar marca?", function () {
+                        fnProcesando();
+                        fnLlenarObjeto("#divMarca", objMarca);
+                        objMarca.iMarEstado = @ValCatalogoItem.AUD_ESTADO_ACTIVADO;
+
+                        if (objMarca.iMarId == 0) {
+                            fnPost('Cmn/Marca/Crear', objMarca)
+                                .then((pobjApiRpta) => {
+                                    if (fnVerificarApiRpta(pobjApiRpta)) {
+                                        fnLimpiarDiv("#divMarca");
+                                        $("#modMarca").modal("hide");
+                                        fnMensaje("Se guardó marca exitosamente!", pobjApiRpta.sTipo);
+                                        consultar();
+                                    }
+                                    fnProcesando(false);
+                                });
+                        } else {
+                            fnPut('Cmn/Marca/Editar', objMarca)
+                                .then((pobjApiRpta) => {
+                                    if (fnVerificarApiRpta(pobjApiRpta)) {
+                                        fnLimpiarDiv("#divMarca");
+                                        $("#modMarca").modal("hide");
+                                        fnMensaje("Se guardó marca exitosamente!", pobjApiRpta.sTipo);
+                                        lstMarcas[iFila] = pobjApiRpta.objDatos;
+                                        tblMarcas.clear().draw();
+                                        tblMarcas.rows.add(lstMarcas).draw().columns.adjust().responsive.recalc();
+                                    }
+                                    fnProcesando(false);
+                                });
+                        }
+                    });
+                } else {
+                    $("#frmMarca")[0].reportValidity();
+                }
+            } else {
+                fnAdvertencia("Ud. no tiene permiso para crear o editar marca");
+            }
+        });
+    </script>
+}

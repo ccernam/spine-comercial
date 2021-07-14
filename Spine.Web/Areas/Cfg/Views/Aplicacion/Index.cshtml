@@ -1,0 +1,285 @@
+﻿@using Spine.Modelos.Cfg;
+@using Spine.Web.Clases.Rutas;
+@using Spine.Web.Clases;
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<MCatalogoDet> vlstCanales = (List<MCatalogoDet>)ViewData["lstCanales"];
+}
+
+<script type="text/javascript">
+    document.title = "Aplicaciones : @CnsCadenas.WEB_TITULO";
+</script>
+
+<!-- Estilos -->
+<link href="~/Content/plugins/dataTables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/plugins/dataTables/responsive.dataTables.min.css" rel="stylesheet" />
+<link href="~/Content/plugins/datepicker/datepicker3.css" rel="stylesheet" />
+<link href="~/Content/plugins/select2/select2.min.css" rel="stylesheet" />
+<link href="~/Content/plugins/select2/select2-bootstrap.css" rel="stylesheet" />
+<link href="~/Content/plugins/switchery/switchery.css" rel="stylesheet" />
+
+<!-- Aplicacion  -->
+<div class="wrapper wrapper-content">
+    <div id="mostrarAplicacion" class="">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title title-header">
+                        <h5>Aplicaciones</h5>
+                        <div class="ibox-tools">
+                            <a class="btn btn-success btn-sm" title="Agregar Aplicacion" onclick="" id="aplicacion_index_btnAgregar">
+                                <span class="icon-custom"><i class="fas fa-plus"></i></span>Agregar
+                            </a>
+                        </div>
+                    </div>
+                    <div class="ibox-content">
+                        <div id="contenedor-tabla-Aplicacion">
+                            <table id="aplicacion_index_tblAplicacion" class="table table-striped table-bordered" cellspacing="0"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="aplicacion_index_modAplicacion" class="modal fade ui-widget-content" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" tabindex="-1" data-focus-on="input:first" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form role="form" id="aplicacion_index_frmAplicacion" autocomplete="off">
+                <div class="modal-header" style="cursor:move">
+                    @*<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>*@
+                    <h4 class="modal-title">Agregar Aplicacion</h4>
+                </div>
+                <div class="modal-body" id="apl_index_divAplicacionForm">
+                    <div class="row">
+                        <div class="col-md-12" id="apl_index_divCampos">
+                            <div class="row">
+                                <div class="form-group col-md-3">
+                                    <label for="aplicacion_index_txtAplCodigo">Código <span style="color:red"> *</span> </label>
+                                    <input type="text" id="aplicacion_index_txtAplCodigo" name="sAplCodigo" class="soloMayusculas limpiar-modal form-control input-sm dt-input-alfanum" maxlength="4" required />
+                                </div>
+                                <div class="form-group col-md-9">
+                                    <label for="aplicacion_index_txtAplNombre">Nombre <span style="color:red"> *</span> </label>
+                                    <input type="text" id="aplicacion_index_txtAplNombre" name="sAplNombre" maxlength="40" class="soloLetras mayusculas limpiar-modal form-control input-sm dt-input-alfanum" required />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-3">
+                                    <label for="aplicacion_index_txtAplCodigo">Canal <span style="color:red"> *</span> </label>
+                                    <select class="form-control input-sm" name="nAplCanal|sAplCanal" placeholder="Username" id="aplicacion_index_cboCanales" required>
+                                        <option value="">- SELECCIONE -</option>
+                                        @foreach (MCatalogoDet voCanal in vlstCanales)
+                                        {
+                                            <option value="@voCanal.nCDeValorNumero">@voCanal.sCDeNombre</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-9">
+                                    <label for="aplicacion_index_txtAplIcono">Icono </label>
+                                    <input type="text" id="aplicacion_index_txtAplIcono" name="sAplIcono" maxlength="40" class="limpiar-modal form-control input-sm dt-input-alfanum" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label for="aplicacion_index_txtAplDescripcion">Descripcion </label>
+                                    <input type="text" id="aplicacion_index_txtAplDescripcion" name="sAplDescripcion" maxlength="240" class="mayusculas limpiar-modal form-control input-sm" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label for="aplicacion_index_txtAplRuta">Ruta</label>
+                                    <input type="text" id="aplicacion_index_txtAplRuta" name="sAplRuta" maxlength="120" class="limpiar-modal form-control input-sm" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <!-- ESTADO -->
+                                    <label class="">Estado </label>
+                                    <div class="input-group" id="divEstado" style="display: block;padding-top: 0px;">
+                                        <input type="checkbox" name="sAplEstado" class="form-control switchery-custom-enable" id="aplicacion_index_chkAplEstado" checked>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button type="button" id="aplicacion_index_btnGuardar" class="btn btn-primary btn-sm"><span class="fas fa-save"></span> Guardar</button>
+                            <button type="button" id="aplicacion_index_btnCancelar" class="btn btn-danger btn-sm" data-dismiss="modal"><span class="fas fa-times"></span> Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Plugins -->
+<script src="~/Scripts/plugins/dataTables/datatables.min.js"></script>
+<script src="~/Scripts/plugins/dataTables/dataTables.responsive.min.js"></script>
+<script src="~/Scripts/plugins/datepicker/bootstrap-datepicker.js"></script>
+<script src="~/Scripts/plugins/select2/select2.full.min.js"></script>
+<script src="~/Scripts/plugins/switchery/switchery.js"></script>
+<script>
+    // Variables globales
+    var aplicacion_index_tblAplicacion = null;
+    var aplicacion_index_nIdAplicacion = 0;
+    var aplicacion_index_oAplicacion = {};
+    var aplicacion_index_chkAplEstado = new Object();
+
+    // Evento ready
+    $(document).ready(function () {
+        aplicacion_index_estiloInicial();
+        aplicacion_index_dataInicial();
+    });
+
+    // Funciones
+    function aplicacion_index_estiloInicial() {
+        $(document).on('hidden.bs.modal', '.modal', function () { $('.modal:visible').length && $(document.body).addClass('modal-open'); });
+        $.fn.modal.Constructor.prototype.enforceFocus = function () { };
+
+        fnMayusculas(".mayusculas");
+        fnMinusculas(".minusculas");
+        fnNumerico("#aplicacion_index_txtAplCodigo");
+        fnAlfabetico(".soloLetras", true, "");
+        fnAlfanumerico("#aplicacion_index_txtAplIcono", true, "-.");
+        fnAlfanumerico("#aplicacion_index_txtAplDescripcion", true, "/-.");
+        fnAlfanumerico("#aplicacion_index_txtAplRuta", false, "_/.");
+        aplicacion_index_chkAplEstado = fnSwitchery("#aplicacion_index_chkAplEstado");
+
+        aplicacion_index_tblAplicacion = $('#aplicacion_index_tblAplicacion').DataTable({
+            processing: true,
+            destroy: true,
+            sort: false,
+            autoWidth: false,
+            responsive: true,
+            //paging: true,
+            iDisplayLength: 50,
+            dom: "f<'row'<'col-sm-12't>><'row'<'col-sm-5'i><'col-sm-7'p>>",
+            columns: [
+                {
+                    title: "N°", data: null, width: "30px", className: "text-center",
+                    render: function (data, type, row, meta) {
+                        return meta.row + 1;
+                    }
+                },
+                { title: "Codigo", data: "sAplCodigo", width: "60px", className: "text-center"},
+                { title: "Canal", data: "sAplCanal"},
+                { title: "Nombre", data: "sAplNombre"},
+                { title: "Ruta", data: "sAplRuta"},
+                { title: "Icono", data: "sAplIcono"},
+                {
+                    title: "Estado", data: "sAplEstado", width: "60px", visible: true, sortable: false, className: "text-center",
+                    render: function (data, type, row, meta) {
+                        var vsClass = row.nAplEstado === 0 ? "badge badge-danger" : "badge badge-primary";
+                        return "<span class='" + vsClass + "'>" + data + "</span>";
+                    }
+                },
+                {
+                    title: "Acciones", data: null, width: "40px", visible: true, sortable: false, className: "text-center",
+                    render: function (data, type, row, meta) {
+                        if (type === 'display') { // <-- para no renderizar 3 veces, solo 1
+                            return "<div class='btn-group'>" +
+                                "<a data-toggle='dropdown' class='btn-success btn-sm dropdown-toggle btn-newTable'>" +
+                                "<i class='fa fa-cog fa-1x cog-new' aria-hidden='true'></i>" +
+                                "<b class='caret caret-new'></b>" +
+                                "</a>" +
+                                "<ul class='dropdown-menu pull-right' style='padding-top: 0.5em; padding-bottom: 0.5em; z-index: 99999;'>" +
+                                "<li><button type='button' class='btn btn-block btnAccion' onclick=\"aplicacion_index_editarAplicacion('" + row.nIdAplicacion + "')\" >" +
+                                "<i class='fas fa-edit' aria-hidden='true'></i> Editar</button></li>";
+                        }
+                        return data;
+                    }
+                },
+            ]
+        });
+    }
+    function aplicacion_index_dataInicial() {
+        fnProcesando();
+        fnGet("@CnsRutaCfg.APLICACION_CONSULTAR", {}, function (pobjApiRpta) {
+            aplicacion_index_tblAplicacion.clear().draw();
+            aplicacion_index_tblAplicacion.rows.add(pobjApiRpta.objDatos).draw().columns.adjust().responsive.recalc();
+        });
+        fnProcesando(false);
+    }
+    function aplicacion_index_editarAplicacion(pnIdAplicacion) {
+        fnProcesando();
+        fnGet("@CnsRutaCfg.APLICACION_CONSULTAR", { pnIdAplicacion: pnIdAplicacion }, function (pobjApiRpta) {
+			if (fnVerificarApiRpta(pobjApiRpta)) {
+				if (pobjApiRpta.objDatos.length == 0) {
+					fnAdvertencia("La consulta no ha devuelto resultados");
+				} else {
+                    aplicacion_index_oAplicacion = pobjApiRpta.objDatos[0];
+                    fnLimpiarDiv("#apl_index_divAplicacionForm");
+                    fnLlenarDiv("#apl_index_divAplicacionForm", aplicacion_index_oAplicacion);
+                    aplicacion_index_chkAplEstado.val(aplicacion_index_oAplicacion.nAplEstado == 1);
+                    aplicacion_index_chkAplEstado.enable();
+                    $("#aplicacion_index_modAplicacion").modal("show");
+                    $("#aplicacion_index_modAplicacion .modal-title").text("Editar Aplicación");
+				}
+			}
+			fnProcesando(false);
+		});
+    }
+    function aplicacion_index_validar() {
+        if ($("#aplicacion_index_txtAplCodigo").val().trim() == "" || $("#aplicacion_index_txtAplCodigo").val().trim().length <= 0) {
+            fnAdvertencia("Asegúrese de ingresar el código de la aplicación", "Validación");
+            return false;
+        }
+        if ($("#aplicacion_index_txtAplNombre").val().trim() == "" || $("#aplicacion_index_txtAplNombre").val().trim().length <= 0) {
+            fnAdvertencia("Asegúrese de ingresar el nombre de la aplicación", "Validación");
+            return false;
+        }
+        if ($("#aplicacion_index_cboCanales").val().trim() == "" || $("#aplicacion_index_cboCanales").val().trim().length <= 0) {
+            fnAdvertencia("Asegúrese de seleccionar el canal de la aplicación", "Validación");
+            return false;
+        }
+        return true;
+    }
+    //// Eventos
+    $("#aplicacion_index_btnAgregar").click(function () {
+        aplicacion_index_nIdAplicacion = 0;
+        aplicacion_index_oAplicacion = {};
+        fnLimpiarDiv("#apl_index_divCampos");
+        aplicacion_index_oAplicacion.nIdAplicacion = 0;
+        aplicacion_index_chkAplEstado.val(true);
+        aplicacion_index_chkAplEstado.disable();
+        $("#aplicacion_index_modAplicacion .modal-title").text("Agregar Aplicacion");
+        $("#aplicacion_index_modAplicacion").modal({ backdrop: "static", keyboard: false })
+        $("#aplicacion_index_modAplicacion").modal("show");
+    });
+    $("#aplicacion_index_btnGuardar").click(function () {
+        if (aplicacion_index_validar()){
+            if ($("#aplicacion_index_frmAplicacion")[0].checkValidity()) {
+                fnPregunta("¿Está seguro de guardar aplicación?", function () {
+                    fnProcesando();
+                    fnLlenarObjeto("#apl_index_divAplicacionForm", aplicacion_index_oAplicacion);
+                    aplicacion_index_oAplicacion.nAplEstado = (aplicacion_index_chkAplEstado.val() ? 1 : 0);
+                    fnPost("@CnsRutaCfg.APLICACION_GUARDAR", aplicacion_index_oAplicacion, function (pobjApiRpta) {
+                        if (fnVerificarApiRpta(pobjApiRpta)) {
+                                $("#aplicacion_index_modAplicacion").modal("hide");
+                                let apl_index_mensaje = (aplicacion_index_oAplicacion.nIdAplicacion == 0) ? ' guardó' : ' actualizó';
+                                fnMensaje("Se" + apl_index_mensaje + " aplicación exitosamente");
+                                aplicacion_index_dataInicial();
+                            }
+                            fnProcesando(false);
+                        });
+                    });
+            } else {
+                $("#aplicacion_index_frmAplicacion")[0].reportValidity();
+            }
+        }
+    });
+    $("#aplicacion_index_btnCancelar").click(function () {
+        fnLimpiarDiv("#apl_index_divCampos");
+    });
+    $('.scroll_content').slimscroll({
+        height: "409px"
+    });
+    window.onresize = function () {
+        aplicacion_index_tblAplicacion.columns.adjust().responsive.recalc();
+    }
+</script>

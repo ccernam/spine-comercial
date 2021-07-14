@@ -1,0 +1,258 @@
+﻿@using Spine.Entities.Cfg;
+@using Spine.Constantes.Valores.Cfg;
+@using Spine.Constantes.Codigos.Cfg;
+@using Spine.Web.Clases;
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<CatalogoItem> vlstCtgTipo = (List<CatalogoItem>)ViewBag.lstCtgTipo;
+    List<Breadcrumb> breadcrumbs = new List<Breadcrumb>();
+    breadcrumbs.Add(new Breadcrumb { Name = "Personas" });
+}
+
+@section PluginStyle {
+    <link rel="stylesheet" href="/Content/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="/Content/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+}
+
+@section Breadcrumb {
+    @Html.Partial("_Breadcrumb", breadcrumbs)
+}
+
+<div class="card card-info card-outline">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title m-0">Personas</h5>
+        <div class="card-tools">
+            @if ((bool)ViewBag.lCrear)
+            {
+                <a id="per_index_btnCrear" class="btn btn-info btn-sm my-0 mr-0" title="Crear Persona">
+                    <i class="fas fa-plus mr-2"></i> Crear
+                </a>
+            }
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="form-group col-md-12">
+                <label for="per_index_txtPerComodin">Número de Documento o Nombre</label>
+                <input type="text" id="per_index_txtPerComodin" class="form-control form-control-sm" name="psPerComodin" maxlength="200" required />
+                <a id="per_index_btnConsultar" class="btn btn-info btn-sm my-0 mr-0">
+                    <i class="fas fa-search mr-2"></i> Consultar
+                </a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-md-12">
+                <table id="per_index_tblPersonas" class="table table-striped table-bordered table-hover table-sm rounded"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Modal {
+    @{Html.RenderAction("Ver", "Cambio", new { area = "Aud", psEtiqueta = "Persona", psEntCodigo = CodEntidad.CMN_PERSONA });}
+}
+
+@section PluginScript {
+    <script src="/Content/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="/Content/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="/Content/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="/Content/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+}
+
+@section Script {
+    <script type="text/javascript">
+        //Titulo
+        document.title = "Personas : @CnsCadenas.WEB_TITULO";
+
+        // Variables
+        let per_index_tblPersonas = null;
+        let per_index_lstPersonas = [];
+
+        let per_index_objPersona = {};
+
+        //Funciones
+        const per_index_iniciar = () => {
+            per_index_tblPersonas = $('#per_index_tblPersonas').DataTable({
+                ...cnsDataTableOptions,
+                searching: false,
+                columns: [
+                    {
+                        title: "N°", data: null, visible: true, width: "40px", className: "text-center",
+                        render: (data, type, row, meta) => (meta.row + 1)
+                    },
+                    { title: "Tipo de Doc.", data: "sPerTipoDocumento", visible: true, width: "10%" },
+                    { title: "Nro. de Doc.", data: "sPerDocumento", visible: true, width: "10%" },
+                    { title: "Nombre", data: "sPerNombre", visible: true },
+                    {
+                        title: "Estado", data: "sPerEstado", visible: true, width: "80px", className: "text-center",
+                        render: (data, type, row, meta) => fnCrearTag("span", { sClase: (row.iPerEstado == @ValCatalogoItem.AUD_ESTADO_ACTIVADO ? "badge badge-success" : "badge badge-danger py-1"), sTexto: data }).prop("outerHTML")
+                    },
+                    {
+                        title: "Acciones", data: null, visible: true, width: "100px",
+                        render: (data, type, row, meta) => {
+                            if (type !== 'display') return data;
+
+                            let vlstData = [{ sNombre: "data-row", sValor: meta.row }];
+                            let vobjOpciones = fnCrearTag("div", { sClase: "card-action d-inline" });
+
+                            if (row.iPerEstado == @ValCatalogoItem.AUD_ESTADO_ACTIVADO) {
+                                if (@Convert.ToString(ViewBag.lEditar).ToLower()) {
+                                    vobjOpciones.append(fnCrearTag("button", { sClase: "btn btn-info btn-xs btn-action per_index_btnEditar", sTitulo: "Editar", sIcono: "fas fa-edit", lstData: vlstData }));
+                                }
+                                if (@Convert.ToString(ViewBag.lDesactivar).ToLower()) {
+                                    vobjOpciones.append(fnCrearTag("button", { sClase: "btn btn-info btn-xs btn-action per_index_btnDesactivar ml-2", sTitulo: "Desactivar", sIcono: "fas fa-times", lstData: vlstData }));
+                                }
+                            } else if (row.iPerEstado == @ValCatalogoItem.AUD_ESTADO_DESACTIVADO) {
+                                if (@Convert.ToString(ViewBag.lActivar).ToLower()) {
+                                    vobjOpciones.append(fnCrearTag("button", { sClase: "btn btn-info btn-xs btn-action per_index_btnActivar", sTitulo: "Activar", sIcono: "fas fa-check", lstData: vlstData }));
+                                }
+                            }
+                            vobjOpciones.append(fnCrearTag("button", { sClase: "btn btn-info btn-xs btn-action per_index_btnVerCambios ml-2", sTitulo: "Ver Cambios", sIcono: "fas fa-clock", lstData: vlstData }));
+
+                            return vobjOpciones.prop("outerHTML");
+                        }
+                    }
+                ]
+            });
+            fnAlfanumerico("#per_index_txtPerComodin", true, "&-.");
+        }
+        const per_index_consultar = () => {
+            let vobjParametros = {};
+            vobjParametros.psPerComodin = $("#per_index_txtPerComodin").val();
+            fnProcesando();
+            fnGet("Cmn/Persona/Consultar", vobjParametros)
+                .then((pobjApiRpta) => {
+                    if (fnVerificarApiRpta(pobjApiRpta)) {
+                        per_index_lstPersonas = pobjApiRpta.objDatos;
+                        per_index_tblPersonas.clear().draw();
+                        per_index_tblPersonas.rows.add(per_index_lstPersonas).draw().columns.adjust().responsive.recalc();
+                    }
+                    fnProcesando(false);
+                });
+        }
+
+        // Eventos
+        $(document).ready(() => {
+            per_index_iniciar();
+            // per_index_consultar();
+        });
+        $(document).on("click", "#per_index_btnCrear", function () {
+
+            console.log(per_index_tblPersonas.rows().data());
+            @*if (@Convert.ToString(ViewBag.lCrear).ToLower()) {
+                per_index_objPersona = { iPerId: 0 };
+                fnLimpiarDiv("#per_index_frmCategoria");
+                $("#per_index_cboCtgTipo").removeAttr('disabled');
+                $("#per_index_modCategoria .modal-title").text("Crear Categoría");
+                $("#per_index_modCategoria").modal({ backdrop: "static", keyboard: false });
+                $("#per_index_modCategoria").modal("show");
+            } else {
+                fnAdvertencia("Ud. no tiene permiso para crear categoría");
+            }*@
+        });
+        $(document).on("click", "#per_index_btnConsultar", function () {
+            per_index_consultar();
+        });
+        $(document).on("click", ".per_index_btnEditar", function (event) {
+            if (@Convert.ToString(ViewBag.lEditar).ToLower()) {
+                fnLimpiarDiv("#per_index_divCategoria");
+                per_index_objPersona = per_index_tblPersonas.rows(event.currentTarget.getAttribute("data-row")).data();
+                fnLlenarDiv("#per_index_divCategoria", per_index_objPersona);
+                $("#per_index_modCategoria .modal-title").text("Editar Categoría");
+                $("#per_index_modCategoria").modal("show");
+            } else {
+                fnAdvertencia("Ud. no tiene permiso para editar categoría");
+            }
+        });
+        $(document).on("click", ".per_index_btnActivar", function (event) {
+            if (@Convert.ToString(ViewBag.lActivar).ToLower()) {
+                let viFila = event.currentTarget.getAttribute("data-row");
+                let viPerId = per_index_tblPersonas.row(viFila).data().iPerId;
+                fnPregunta("¿Está seguro de activar persona?", function () {
+                    fnProcesando();
+                    fnPost(`Cmn/Persona/Activar/${viPerId}`, {})
+                        .then((pobjApiRpta) => {
+                            if (fnVerificarApiRpta(pobjApiRpta)) {
+                                fnMensaje("Se activó persona exitosamente");
+                                per_index_lstPersonas[viFila] = pobjApiRpta.objDatos;
+                                per_index_tblPersonas.clear().draw();
+                                per_index_tblPersonas.rows.add(per_index_lstPersonas).draw().columns.adjust().responsive.recalc();
+                            }
+                            fnProcesando(false);
+                        });
+                });
+            } else {
+                fnAdvertencia("Ud. no tiene permiso para activar personas");
+            }
+        });
+        $(document).on("click", ".per_index_btnDesactivar", function (event) {
+            if (@Convert.ToString(ViewBag.lDesactivar).ToLower()) {
+                let viFila = event.currentTarget.getAttribute("data-row");
+                let viPerId = per_index_tblPersonas.row(viFila).data().iPerId;
+                fnPregunta("¿Está seguro de desactivar persona?", function () {
+                    fnProcesando();
+                    fnPost(`Cmn/Persona/Desactivar/${viPerId}`, {})
+                        .then((pobjApiRpta) => {
+                            if (fnVerificarApiRpta(pobjApiRpta)) {
+                                per_index_lstPersonas[viFila] = pobjApiRpta.objDatos;
+                                per_index_tblPersonas.clear().draw();
+                                per_index_tblPersonas.rows.add(per_index_lstPersonas).draw().columns.adjust().responsive.recalc();
+                            }
+                            fnProcesando(false);
+                        });
+                });
+            } else {
+                fnAdvertencia("Ud. no tiene permiso para desactivar personas");
+            }
+        });
+        $(document).on("click", ".per_index_btnVerCambios", function (event) {
+            fnProcesando();
+            var vobjPersona = per_index_tblPersonas.row(event.currentTarget.getAttribute("data-row")).data();
+            cam_ver_iniciar({ sIdentificador: vobjPersona.sPerDocDocumento + " - " + vobjPersona.sPerNombre, iCamRegistro: vobjPersona.iPerId })
+                .then(() => {
+                    fnProcesando(false);
+                });
+        });
+        $(document).on("click", "#per_index_btnGuardar", function () {
+            if (@Convert.ToString(ViewBag.lCrear).ToLower() || @Convert.ToString(ViewBag.lEditar).ToLower()) {
+                if ($("#per_index_frmCategoria")[0].checkValidity()) {
+                    fnPregunta("¿Esta seguro de guardar categoría?", function () {
+                        fnProcesando();
+                        fnLlenarObjeto("#per_index_divCategoria", per_index_objPersona);
+                        per_index_objPersona.iPerEstado = @ValCatalogoItem.AUD_ESTADO_ACTIVADO;
+
+                        if (per_index_objPersona.iPerId == 0) {
+                            fnPost('Cmn/Categoria/Crear', per_index_objPersona)
+                                .then((pobjApiRpta) => {
+                                    if (fnVerificarApiRpta(pobjApiRpta)) {
+                                        fnLimpiarDiv("#per_index_divCategoria");
+                                        $("#per_index_modCategoria").modal("hide");
+                                        fnMensaje("Se guardó categoría exitosamente!", pobjApiRpta.sTipo);
+                                        per_index_consultar();
+                                    } else {
+                                        fnProcesando(false);
+                                    }
+                                });
+                        } else {
+                            fnPut('Cmn/Categoria/Editar', per_index_objPersona)
+                                .then((pobjApiRpta) => {
+                                    if (fnVerificarApiRpta(pobjApiRpta)) {
+                                        fnLimpiarDiv("#per_index_divCategoria");
+                                        $("#per_index_modCategoria").modal("hide");
+                                        fnMensaje("Se guardó categoría exitosamente!", pobjApiRpta.sTipo);
+                                        per_index_consultar();
+                                    } else {
+                                        fnProcesando(false);
+                                    }
+                                });
+                        }
+                    });
+                } else {
+                    $("#per_index_frmCategoria")[0].reportValidity();
+                }
+            } else {
+                fnAdvertencia("Ud. no tiene permiso para crear o editar categoría");
+            }
+        });
+    </script>
+}

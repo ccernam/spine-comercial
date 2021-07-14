@@ -1,0 +1,66 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>..:: EBS Engine Configuración ::..</title>
+    <link rel="shortcut icon" type="image/x-icon" href="~/Content/img/engine-icon-sm.png" />
+
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet">
+    <link href="~/Content/animate.css" rel="stylesheet">
+    <link href="~/Content/style.css" rel="stylesheet">
+    @*<link href="@ConstEstilo.GRITTER" rel="stylesheet">
+        <link href="@ConstEstilo.CONFIRM" rel="stylesheet">
+        <link href="@ConstEstilo.ESTILOS" rel="stylesheet">*@
+    <style>
+        .footer span {
+            font-size: 13px;
+        }
+    </style>
+
+    <!-- Mainly scripts -->
+    <script src="~/Scripts/jquery-3.2.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/plugins/metisMenu/jquery.metisMenu.js"></script>
+    <script src="~/Scripts/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="~/Scripts/inspinia.js"></script>
+    <script src="~/Scripts/plugins/pace/pace.min.js"></script>
+    <script src="~/Scripts/plugins/jquery-confirm/jquery-confirm.min.js"></script>
+    <script src="~/Scripts/plugins/gritter/jquery.gritter.min.js"></script>
+    <script src="~/Scripts/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js"></script>
+    <script>FontAwesomeConfig = { searchPseudoElements: true };</script>        <!--Script necesario para visualizar iconos font awesome -->
+    <script src="~/Scripts/custom/general/fontawesome-all.min.js"></script>
+</head>
+
+<body>
+    <div class="pace pace-inactive">
+        <div class="pace-progress" data-progress-text="100%" data-progress="99" style="transform: translate3d(100%, 0px, 0px);">
+            <div class="pace-progress-inner"></div>
+        </div>
+        <div class="pace-activity"></div>
+    </div>
+    <div id="wrapper">
+
+        <!-- Menu Lateral -->
+        @Html.Partial("_MenuLateral")
+
+        <div id="page-wrapper" class="gray-bg" style="">
+
+            <!-- Cabecera -->
+            @*@Html.Partial("_Cabecera")*@
+
+            <!-- Cuerpo -->
+            <div id="divContent">
+                @RenderBody()
+            </div>
+
+            <!-- Pie -->
+            @Html.Partial("_Pie")
+        </div>
+
+    </div>
+
+
+</body>
+</html>

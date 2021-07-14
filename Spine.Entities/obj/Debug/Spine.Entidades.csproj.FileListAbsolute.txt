@@ -1,0 +1,5 @@
+C:\Users\Asus TUF\Documents\Empresas\HomeetCoders\Spine\Spine.Entidades\bin\Debug\Spine.Entidades.dll
+C:\Users\Asus TUF\Documents\Empresas\HomeetCoders\Spine\Spine.Entidades\bin\Debug\Spine.Entidades.pdb
+C:\Users\Asus TUF\Documents\Empresas\HomeetCoders\Spine\Spine.Entidades\obj\Debug\Spine.Entidades.csproj.CoreCompileInputs.cache
+C:\Users\Asus TUF\Documents\Empresas\HomeetCoders\Spine\Spine.Entidades\obj\Debug\Spine.Entidades.dll
+C:\Users\Asus TUF\Documents\Empresas\HomeetCoders\Spine\Spine.Entidades\obj\Debug\Spine.Entidades.pdb

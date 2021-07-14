@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{E1108101-EF51-4023-98B4-F5D2FF0BEE2E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Spine.Services</RootNamespace>
+    <AssemblyName>Spine.Services</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.IdentityModel.JsonWebTokens, Version=6.11.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.IdentityModel.JsonWebTokens.6.11.1\lib\net461\Microsoft.IdentityModel.JsonWebTokens.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Logging, Version=6.11.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.IdentityModel.Logging.6.11.1\lib\net461\Microsoft.IdentityModel.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Tokens, Version=6.11.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.IdentityModel.Tokens.6.11.1\lib\net461\Microsoft.IdentityModel.Tokens.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.IdentityModel.Tokens.Jwt, Version=6.11.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IdentityModel.Tokens.Jwt.6.11.1\lib\net461\System.IdentityModel.Tokens.Jwt.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Implementations\Aud\CambioService.cs" />
+    <Compile Include="Cfg\AccionService.cs" />
+    <Compile Include="Cfg\EmpresaNeg.cs" />
+    <Compile Include="Cfg\MenuNeg.cs" />
+    <Compile Include="Cfg\MonedaNeg.cs" />
+    <Compile Include="Cfg\EntidadService.cs" />
+    <Compile Include="Cfg\NegParametro.cs" />
+    <Compile Include="Cfg\RolNeg.cs" />
+    <Compile Include="Implementations\Aud\ErrorService.cs" />
+    <Compile Include="Implementations\Cfg\CatalogoService.cs" />
+    <Compile Include="Implementations\Cfg\UbigeoService.cs" />
+    <Compile Include="Implementations\Cmn\AlmacenService.cs" />
+    <Compile Include="Implementations\Cmn\CategoriaService.cs" />
+    <Compile Include="Cmn\NegFolio.cs" />
+    <Compile Include="Cmn\PersonaService.cs" />
+    <Compile Include="Cmn\ProductoService.cs" />
+    <Compile Include="Implementations\Cmn\MarcaService.cs" />
+    <Compile Include="Implementations\Cmn\SucursalService.cs" />
+    <Compile Include="Cmn\NegTipoCambio.cs" />
+    <Compile Include="Com\NegFacturaVenta.cs" />
+    <Compile Include="Com\NegNotaCreditoVenta.cs" />
+    <Compile Include="Implementations\Cmn\UnidadMedidaService.cs" />
+    <Compile Include="Implementations\Seg\SesionService.cs" />
+    <Compile Include="Interfaces\Aud\ICambioService.cs" />
+    <Compile Include="Interfaces\Aud\IErrorService.cs" />
+    <Compile Include="Interfaces\Cfg\IAplicacionService.cs" />
+    <Compile Include="Interfaces\Cfg\ICatalogoService.cs" />
+    <Compile Include="Interfaces\Cfg\IUbigeoService.cs" />
+    <Compile Include="Interfaces\Cmn\IAlmacenService.cs" />
+    <Compile Include="Interfaces\Cmn\ICategoriaService.cs" />
+    <Compile Include="Interfaces\Cmn\IMarcaService.cs" />
+    <Compile Include="Interfaces\Cmn\ISucursalService.cs" />
+    <Compile Include="Interfaces\Cmn\IUnidadMedidaService.cs" />
+    <Compile Include="Interfaces\Seg\IRolService.cs" />
+    <Compile Include="Interfaces\Seg\ISesionService.cs" />
+    <Compile Include="Interfaces\Seg\IUsuarioService.cs" />
+    <Compile Include="Lgt\NegOrdenMovimiento.cs" />
+    <Compile Include="Lgt\NegFacturaCompra.cs" />
+    <Compile Include="Lgt\NegNotaCreditoCompra.cs" />
+    <Compile Include="ServiceBase.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Implementations\Seg\RolService.cs" />
+    <Compile Include="Implementations\Seg\UsuarioService.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Spine.Constants\Spine.Constants.csproj">
+      <Project>{138064bb-7df1-4d43-b56f-347444f5bbac}</Project>
+      <Name>Spine.Constants</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Spine.Entities\Spine.Entities.csproj">
+      <Project>{16d5fd9a-6907-4d16-8238-edcadecf82ae}</Project>
+      <Name>Spine.Entities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Spine.Librerias\Spine.Librerias.csproj">
+      <Project>{a5094a93-3e4f-4fbb-ae16-9fb55b44929e}</Project>
+      <Name>Spine.Librerias</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Spine.Repositories\Spine.Repositories.csproj">
+      <Project>{e6d68bd4-f186-4c6d-8607-70e45aed1b99}</Project>
+      <Name>Spine.Repositories</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Interfaces\Lgt\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

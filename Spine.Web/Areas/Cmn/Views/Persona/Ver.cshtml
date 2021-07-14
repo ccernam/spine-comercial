@@ -1,0 +1,265 @@
+﻿@using Spine.Entities.Cfg;
+@using Spine.Entities.Cmn;
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<CatalogoItem> vlstPerTipo = new List<CatalogoItem>();
+    List<CatalogoItem> vlstPerTipoDoc = new List<CatalogoItem>();
+    Persona vobjPersona = (Persona)ViewBag.objPersona;
+
+}
+@section PluginStyle {
+    <link rel="stylesheet" href="/Content/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="/Content/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+}
+
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Crear Persona</h3>
+        <div class="card-tools">
+            <a class="btn btn-success btn-xs" title="Crear Categoría" id="per_index_btnCrear">
+                <i class="fas fa-plus"></i> Volver
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12">
+                <h4>Información básica</h4>
+                <hr />
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-md-3">
+                <label for="per_form_cboTipPers">Tipo de persona <span style="color:red"> *</span> </label>
+                <select id="per_form_cboTipPers" class="form-control">
+                    <option value="">- Seleccione -</option>
+                    @foreach (var vobjPerTipo in vlstPerTipo)
+                    {
+                        <option value="@vobjPerTipo.iCatIteNumero">@vobjPerTipo.sCatIteNombre</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="per_form_cboTipoDoc">Tipo de documento <span style="color:red"> *</span> </label>
+                <select id="per_form_cboTipoDoc" class="form-control">
+                    <option value="">- Seleccione -</option>
+                    @foreach (var vobjPerTipoDoc in vlstPerTipoDoc)
+                    {
+                        <option value="@vobjPerTipoDoc.iCatIteNumero">@vobjPerTipoDoc.sCatIteNombre</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group col-md-2">
+                <label for="per_form_txtNumbDoc">Nro. Documento <span style="color:red"> *</span></label>
+                <div class="input-group">
+                    <input type="text" id="per_form_txtNumbDoc" class="form-control limpiar-modal" value="" maxlength="15" autocomplete="off" />
+                    <span class="input-group-btn">
+                        <button class="btn btn-primary btn-sm" type="button" id="per_form_btnPerBuscar"><i class="fas fa-search"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-md-3">
+                <label for="per_form_txtApePat">Apellido paterno <span style="color:red"> *</span></label>
+                <input type="text" id="per_form_txtApePat" class="form-control limpiar-modal solo-mayusculas" maxlength="40" autocomplete="off" value="" />
+            </div>
+            <div class="form-group col-md-3">
+                <label for="per_form_txtApeMat">Apellido materno </label>
+                <input type="text" id="per_form_txtApeMat" class="form-control limpiar-modal solo-mayusculas" maxlength="40" autocomplete="off" value="" />
+            </div>
+            <div class="form-group col-md-6">
+                <label for="per_form_txtPriNomb">Primer nombre <span style="color:red"> *</span></label>
+                <input type="text" id="per_form_txtPriNomb" class="form-control limpiar-modal solo-mayusculas" maxlength="40" autocomplete="off" value="" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <h4>Teléfonos</h4>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-md-3">
+                <label for="per_form_txtPriNomb">Descripción<span style="color:red"> *</span></label>
+                <input type="text" id="" class="form-control" maxlength="50" value="" />
+            </div>
+            <div class="form-group col-md-3">
+                <label for="per_form_txtPriNomb">Teléfono<span style="color:red"> *</span></label>
+                <input type="text" id="" class="form-control" maxlength="50" value="" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <table id="per_form_tblPersonaTelefono" class="table table-striped table-bordered table-hover table-sm rounded" cellspacing="0"></table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <h4>Correos</h4>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <table id="per_form_tblPersonaCorreo" class="table table-striped table-bordered table-hover table-sm rounded" cellspacing="0"></table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <h4>Direcciones</h4>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <table id="per_form_tblPersonaDireccion" class="table table-striped table-bordered table-hover table-sm rounded" cellspacing="0"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section PluginScript {
+    <script src="/Content/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="/Content/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="/Content/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="/Content/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+}
+
+@section Script {
+    <script type="text/javascript">
+        var per_form_tblPersonaTelefono = {};
+        var per_form_tblPersonaCorreo = {};
+        var per_form_tblPersonaDireccion = {};
+
+        $(document).ready(() => {
+            per_form_init();
+            // per_index_consultar();
+        });
+
+        function per_form_init() {
+            return new Promise((resolve, reject) => {
+                //axios.put('/seg/usuario/editar', pobjEditar)
+                //    .then((response) => {
+                //        if (response.data) {
+                //            resolve(response.data.objDatos)
+                //        } else {
+                //            reject({ message: "Error al editar usuario." })
+                //        }
+                //    })
+                //    .catch((error) => { reject(error) })
+
+                per_form_tblPersonaTelefono = $('#per_form_tblPersonaTelefono').DataTable({
+                    autoWidth: false,
+                    responsive: true,
+                    sort: false,
+                    bPaginate: false,
+                    iDisplayLength: 50,
+                    dom: "<'row'<'col-sm-12't>>",
+                    columns: [
+                        { title: "N°", data: null, visible: true, width: "40px", className: "text-center", render: (data, type, row, meta) => (meta.row + 1) },
+                        { title: "Descripcion", data: "sPerInfDescripcion", visible: true, width: '20%' },
+                        { title: "Teléfono", data: "sPerInfValor", visible: true },
+                        {
+                            title: "Acciones", data: null, visible: true, width: "60px", className: "text-center",	// 9
+                            render: function (data, type, row, meta) {
+                                if (type === 'display') { // <-- para no renderizar 3 veces, solo 1
+                                    return "";
+                                }
+                                return data;
+                            }
+                        }
+                    ]
+                });
+
+                per_form_tblPersonaCorreo = $('#per_form_tblPersonaCorreo').DataTable({
+                    autoWidth: false,
+                    responsive: true,
+                    sort: false,
+                    bPaginate: false,
+                    iDisplayLength: 50,
+                    dom: "<'row'<'col-sm-12't>>",
+                    columns: [
+                        { title: "N°", data: null, visible: true, width: "40px", className: "text-center", render: (data, type, row, meta) => (meta.row + 1) },
+                        { title: "Descripcion", data: "sPerInfDescripcion", visible: true, width: '20%' },
+                        { title: "Correo", data: "sPerInfValor", visible: true },
+                        {
+                            title: "Acciones", data: null, visible: true, width: "60px", className: "text-center",	// 9
+                            render: function (data, type, row, meta) {
+                                if (type === 'display') { // <-- para no renderizar 3 veces, solo 1
+                                    return "<div class='btn-group'>" +
+                                        "<a data-toggle='dropdown' class='btn-success btn-sm dropdown-toggle btn-newTable'>" +
+                                        "<i class='fa fa-cog fa-1x cog-new' aria-hidden='true'></i>" +
+                                        "<b class='caret caret-new'></b>" +
+                                        "</a>" +
+                                        "<ul class='dropdown-menu pull-right' style='padding-top: 0.5em; padding-bottom: 0.5em; z-index: 99999;'>" +
+                                        "<li><button type='button' class='btn btn-block btnAccion' onclick=\"per_form_editarContacto('" + meta.row + "')\" >" +
+                                        "<i class='fas fa-edit' aria-hidden='true'></i> Editar</button></li>" +
+                                        "<li><button type='button' class='btn btn-block btnAccion' onclick=\"per_form_eliminarInfContacto('" + meta.row + "')\" >" +
+                                        "<i class='fas fa-times-circle' aria-hidden='true'></i> Eliminar</button></li>";
+                                }
+                                return data;
+                            }
+                        }
+                    ]
+                });
+
+                per_form_tblPersonaDireccion = $('#per_form_tblPersonaDireccion').DataTable({
+                    autoWidth: false,
+                    responsive: true,
+                    sort: false,
+                    bPaginate: false,
+                    iDisplayLength: 50,
+                    dom: "<'row'<'col-sm-12't>>",
+                    columns: [
+                        { title: "N°", data: null, visible: true, width: "40px", className: "text-center", render: (data, type, row, meta) => (meta.row + 1) },
+                        { title: "Descripcion", data: "sPerInfDescripcion", visible: true, width: '20%' },
+                        { title: "Ubigeo", data: "sUbiRama", visible: true, visible: true, width: '20%' },
+                        { title: "Dirección", data: "sPerInfValor", visible: true, width: '20%' },
+                        { title: "Referencia", data: "sPerInfReferencia", visible: true },
+                        {
+                            title: "Fiscal", data: "lPDiFiscal", visible: true, width: "60px", className: "text-center",// 9
+                            render: function (data, type, row) {
+                                if (type === 'display') {
+                                    var vsIcono = data == 1 ? "fa-check-square" : "fa-square";
+                                    return "<span class='far " + vsIcono + "' style='font-size: 16px'></span>";
+                                }
+                                return data;
+                            }
+                        },
+                        {
+                            title: "Acciones", data: null, visible: true, width: "60px", className: "text-center",	    // 10
+                            render: function (data, type, full, meta) {
+                                if (type === 'display') { // <-- para no renderizar 3 veces, solo 1
+                                    return "<div class='btn-group'>" +
+                                        "<a data-toggle='dropdown' class='btn-success btn-sm dropdown-toggle btn-newTable'>" +
+                                        "<i class='fa fa-cog fa-1x cog-new' aria-hidden='true'></i>" +
+                                        "<b class='caret caret-new'></b>" +
+                                        "</a>" +
+                                        "<ul class='dropdown-menu pull-right' style='padding-top: 0.5em; padding-bottom: 0.5em; z-index: 99999;'>" +
+                                        "<li><button type='button' class='btn btn-block btnAccion' onclick=\"per_form_editarDireccion('" + meta.row + "')\" >" +
+                                        "<i class='fas fa-edit' aria-hidden='true'></i> Editar</button></li>" +
+                                        "<li><button type='button' class='btn btn-block btnAccion' onclick=\"per_form_eliminarInfDireccion('" + meta.row + "')\" >" +
+                                        "<i class='fas fa-times-circle' aria-hidden='true'></i> Eliminar</button></li>";
+                                }
+                                return data;
+                            }
+                        }
+                    ]
+                });
+                resolve();
+            })
+
+
+
+
+
+        }
+
+
+
+
+
+
+
+    </script>
+
+}

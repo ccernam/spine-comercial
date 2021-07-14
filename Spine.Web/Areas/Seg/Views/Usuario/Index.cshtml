@@ -1,0 +1,475 @@
+﻿@using Spine.Web.Clases;
+@using Spine.Constants.Cfg
+@using Spine.Constants.Cmn;
+@using Spine.Entities.Cmn;
+@using Spine.Web.Areas.Seg.Models;
+@{ 
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<Breadcrumb> breadcrumbs = new List<Breadcrumb>();
+    breadcrumbs.Add(new Breadcrumb { Name = "Usuarios" });
+    IEnumerable<Sucursal> lstSucursales = ViewBag.lstSucursales;
+    UsuarioAccess vobjUsuarioAccess = (UsuarioAccess)ViewBag.objUsuarioAccess;
+}
+
+@section PluginStyle {
+    <link rel="stylesheet" href="/Content/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="/Content/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+}
+
+@section Breadcrumb {
+    @Html.Partial("_Breadcrumb", breadcrumbs)
+}
+
+<div class="card card-info card-outline">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title m-0">Usuarios</h5>
+        <div class="card-tools">
+            @if (vobjUsuarioAccess.lCrear)
+            {
+                <a id="btnCrear" class="btn btn-info btn-sm my-0 mr-0" title="Crear Usuario">
+                    <i class="fas fa-plus mr-2"></i> Crear
+                </a>
+            }
+
+        </div>
+    </div>
+    <div class="card-body">
+        <table id="tblUsuarios" class="table table-striped table-bordered table-hover table-sm rounded"></table>
+    </div>
+</div>
+
+@section Modal {
+
+    @{Html.RenderAction("Ver", "Cambio", new { area = "Aud", psEtiqueta = "Usuario", piEntId = EntidadConstant.Usuario });}
+
+    <div id="modUsuario"
+         class="modal fade"
+         role="dialog"
+         tabindex="-1"
+         aria-hidden="true"
+         data-keyboard="false"
+         data-backdrop="static"
+         data-focus-on="input:first">
+
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <form role="form" id="frmUsuario" autocomplete="off">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Crear Usuario</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label for="txtUsuUsuario">Usuario<span class="text-red ml-2">*</span></label>
+                                <input type="text" id="txtUsuUsuario" class="form-control form-control-sm" name="sUsuUsuario" maxlength="50" required autofocus />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label for="txtUsuCorreo">Correo<span class="text-red ml-2">*</span></label>
+                                <input type="text" id="txtUsuCorreo" class="form-control form-control-sm" name="sUsuCorreo" maxlength="100" required />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label for="cboSucursales">Sucursal</label>
+                                <select id="cboSucursales" class="form-control form-control-sm" name="iSucursalId">
+                                    <option value="">- Seleccione -</option>
+                                    @foreach (Sucursal vobjSucursal in lstSucursales)
+                                    {
+                                        <option value="@vobjSucursal.iSucursalId">@vobjSucursal.sSucNombre</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label for="cboPersonas">Persona</label>
+                                <select id="cboPersonas" class="form-control form-control-sm" name="iPersonaId" disabled>
+                                    <option value="">- Seleccione -</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="btnGuardar" class="btn btn-info btn-sm my-0 mr-0">
+                            <span class="fas fa-save mr-2"></span>Guardar
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-sm my-0 mr-0" data-dismiss="modal">
+                            <span class="fas fa-times mr-2"></span>Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="modRoles"
+         class="modal fade"
+         role="dialog"
+         tabindex="-1"
+         aria-hidden="true"
+         data-keyboard="false"
+         data-backdrop="static"
+         data-focus-on="input:first">
+
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar roles</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="form-group col-md-12">
+                            <label>Usuario</label>
+                            <input type="text" id="txtUsuUsuarioRoles" class="form-control form-control-sm" disabled />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label>Lista de roles</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-12">
+                            <table id="tblUsuarioRoles" class="table table-striped table-bordered table-sm rounded"></table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnGuardarRoles" class="btn btn-info btn-sm my-0 mr-0">
+                        <span class="fas fa-save mr-2"></span>Guardar
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm my-0 mr-0" data-dismiss="modal">
+                        <span class="fas fa-times mr-2"></span>Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section PluginScript {
+    <script src="/Content/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="/Content/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="/Content/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="/Content/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+}
+
+@section Script {
+    <script type="text/javascript">
+        //Titulo
+        document.title = "Usuarios : @CnsCadenas.WEB_TITULO";
+
+        // Variables
+        let tblUsuarios = null;
+        let objUsuario = {};
+        let tblUsuarioRoles = null;
+        let lstUsuarioRoles = [];
+
+        //Funciones
+        const crearControles = () => {
+            fnAlfanumerico("#txtUsuUsuario", "&-.", false);
+            fnAlfanumerico("#txtUsuCorreo", "@@-_.", false);
+
+        }
+        const crearTablaUsuarios = () => {
+            tblUsuarios = $('#tblUsuarios').DataTable({
+                ...cnsDataTableOptions,
+                columns: [
+                    {
+                        title: "N°", data: null, visible: true, width: "20px", className: "text-center",
+                        render: (data, type, row, meta) => (meta.row + 1)
+                    },
+                    { title: "Usuario", data: "sUsuUsuario", visible: true, width: "15%" },
+                    { title: "Correo", data: "sUsuCorreo", visible: true, width: "15%" },
+                    {
+                        title: "Sucursal", data: null, visible: true, width: "15%",
+                        render: (data, type, row, meta) => {
+                            if (type !== 'display') return data;
+                            return (row.sSucNombre ?? "-");
+                        }
+                    },
+                    {
+                        title: "Nombre", data: null, visible: true,
+                        render: (data, type, row, meta) => {
+                            if (type !== 'display') return data;
+                            return (row.sPerNombre ?? "-");
+                        }
+                    },
+                    {
+                        title: "Estado", data: "sUsuEstado", visible: true, width: "80px", className: "text-center",
+                        render: (data, type, row, meta) => fnCrearTag("span", { sClase: (row.iUsuEstado == @EstadoConstant.Activado ? "badge badge-success" : "badge badge-danger py-1"), sTexto: data }).prop("outerHTML")
+                    },
+                    {
+                        title: "Acciones", data: null, visible: true, width: "130px",
+                        render: (data, type, row, meta) => {
+                            if (type !== 'display') return data;
+
+                            let vlstData = [{ sNombre: "data-row", sValor: meta.row }];
+                            let vobjOpciones = fnCrearTag("div", { sClase: "card-action d-inline" });
+
+                            if (row.iUsuEstado == @EstadoConstant.Activado) {
+                                if (@Convert.ToString(vobjUsuarioAccess.lEditar).ToLower()) {
+                                    vobjOpciones.append(fnCrearTag("button", { sClase: "btn btn-info btn-xs btn-action btnEditar", sTitulo: "Editar", sIcono: "fas fa-edit", lstData: vlstData }));
+                                }
+                                if (@Convert.ToString(vobjUsuarioAccess.lDesactivar).ToLower()) {
+                                    vobjOpciones.append(fnCrearTag("button", { sClase: "btn btn-info btn-xs btn-action btnDesactivar ml-2", sTitulo: "Desactivar", sIcono: "fas fa-times", lstData: vlstData }));
+                                }
+                                if (@Convert.ToString(vobjUsuarioAccess.lReiniciarClave).ToLower()) {
+                                    vobjOpciones.append(fnCrearTag("button", { sClase: "btn btn-info btn-xs btn-action btnReiniciarClave ml-2", sTitulo: "Reiniciar clave", sIcono: "fas fa-sync-alt", lstData: vlstData }));
+                                }
+                                if (@Convert.ToString(vobjUsuarioAccess.lEditarRoles).ToLower()) {
+                                    vobjOpciones.append(fnCrearTag("button", { sClase: "btn btn-info btn-xs btn-action btnMostrarEditarRoles ml-2", sTitulo: "Editar roles", sIcono: "fas fa-list", lstData: vlstData }));
+                                }
+                            } else if (row.iUsuEstado == @EstadoConstant.Desactivado) {
+                                if (@Convert.ToString(vobjUsuarioAccess.lActivar).ToLower()) {
+                                    vobjOpciones.append(fnCrearTag("button", { sClase: "btn btn-info btn-xs btn-action btnActivar", sTitulo: "Activar", sIcono: "fas fa-check", lstData: vlstData }));
+                                }
+                            }
+                            vobjOpciones.append(fnCrearTag("button", { sClase: "btn btn-info btn-xs btn-action btnMostrarCambios ml-2", sTitulo: "Mostrar cambios", sIcono: "fas fa-clock", lstData: vlstData }));
+                            return vobjOpciones.prop("outerHTML");
+                        }
+                    }
+                ]
+            });
+
+        }
+        const crearTablaUsuarioRoles = () => {
+            tblUsuarioRoles = $('#tblUsuarioRoles').DataTable({
+                sort: false,
+                autoWidth: false,
+                responsive: true,
+                paging: false,
+                searching: false,
+                language: { url: "/Content/plugins/datatables/jquery.dataTables.es.json" },
+                columns: [
+                    {
+                        title: "N°", data: null, visible: true, width: "20px", className: "text-center",
+                        render: (data, type, row, meta) => (meta.row + 1)
+                    },
+                    { title: "Rol", data: "sRolNombre", visible: true, width: "100px" },
+                    { title: "Descripción", data: "sRolDescripcion", visible: true },
+                    {
+                        title: "", data: "lUsuRolActivado", visible: true, width: "40px",
+                        render: (data, type, row, meta) => {
+                            if (type !== 'display') return data;
+
+                            let vlstData = [{ sNombre: "data-row", sValor: meta.row }];
+                            let vobjChkActivo = fnCrearTag("input", { sTipo: "checkbox", sClase: "chkUsuRolActivado", lActivo: data, lstData: vlstData });
+                            let vobjDivActivo = fnCrearTag("div", { sClase: "d-flex justify-content-center" });
+                            vobjDivActivo.append(vobjChkActivo)
+
+                            return vobjDivActivo.prop("outerHTML");
+                        }
+                    }
+                ]
+            });
+        }
+        const crearCheckTodo = () => {
+            let vobjCabActivoTodo = fnCrearTag("input", { sTipo: "checkbox", sId: "chkUsuRolActivadoTodos", lActivo: false });
+            let vobjDivActivoTodo = fnCrearTag("div", { sClase: "d-flex justify-content-center" });
+            $(tblUsuarioRoles.column(tblUsuarioRoles.columns.length - 1).header())
+                .attr("style", "padding: .3rem !important").text('')
+                .append(vobjDivActivoTodo.append(vobjCabActivoTodo));
+        }
+
+        const consultar = () => {
+            fnProcesando();
+            fnGet("seg/usuario/consultar", {})
+                .then((pobjApiRpta) => {
+                    if (fnVerificarApiRpta(pobjApiRpta)) {
+                        tblUsuarios.clear().draw();
+                        tblUsuarios.rows.add(pobjApiRpta.objDatos).draw().columns.adjust().responsive.recalc();
+                    }
+                    fnProcesando(false);
+                });
+        }
+        const mostrarCrear = () => {
+            if (@Convert.ToString(vobjUsuarioAccess.lCrear).ToLower()) {
+                objUsuario = { iUsuarioId: 0 };
+                fnLimpiarDiv("#frmUsuario");
+                $("#modUsuario .modal-title").text("Crear Usuario");
+                $("#modUsuario").modal({ backdrop: "static", keyboard: false });
+                $("#modUsuario").modal("show");
+            }
+        }
+        const mostrarEditar = (event) => {
+            if (@Convert.ToString(vobjUsuarioAccess.lEditar).ToLower()) {
+                fnLimpiarDiv("#frmUsuario");
+                objUsuario = tblUsuarios.row(event.currentTarget.getAttribute("data-row")).data();
+                fnLlenarDiv("#frmUsuario", objUsuario);
+                $("#modUsuario .modal-title").text("Editar Usuario");
+                $("#modUsuario").modal("show");
+            }
+        }
+        const guardar = () => {
+            if (@Convert.ToString(vobjUsuarioAccess.lCrear).ToLower() || @Convert.ToString(vobjUsuarioAccess.lEditar).ToLower()) {
+                if ($("#frmUsuario")[0].checkValidity()) {
+                    fnPregunta("¿Esta seguro de guardar usuario?", () => {
+                        fnProcesando();
+                        fnLlenarObjeto("#frmUsuario", objUsuario);
+                        objUsuario.iUsuEstado = @EstadoConstant.Activado;
+
+                        if (objUsuario.iUsuarioId == 0) {
+                            fnPost('seg/usuario/crear', objUsuario)
+                                .then((pobjApiRpta) => {
+                                    if (fnVerificarApiRpta(pobjApiRpta)) {
+                                        fnLimpiarDiv("#frmUsuario");
+                                        $("#modUsuario").modal("hide");
+                                        fnMensaje("Se guardó usuario exitosamente.", pobjApiRpta.sTipo);
+                                        consultar();
+                                    } else {
+                                        fnProcesando(false);
+                                    }
+                                });
+                        } else {
+                            fnPut('seg/usuario/editar', objUsuario)
+                                .then((pobjApiRpta) => {
+                                    if (fnVerificarApiRpta(pobjApiRpta)) {
+                                        fnLimpiarDiv("#frmUsuario");
+                                        $("#modUsuario").modal("hide");
+                                        fnMensaje("Se guardó usuario exitosamente.", pobjApiRpta.sTipo);
+                                        consultar();
+                                    } else {
+                                        fnProcesando(false);
+                                    }
+                                });
+                        }
+                    });
+                } else {
+                    $("#frmUsuario")[0].reportValidity();
+                }
+            }
+        }
+        const activar = (event) => {
+            if (@Convert.ToString(vobjUsuarioAccess.lActivar).ToLower()) {
+                let viUsuarioId = tblUsuarios.row(event.currentTarget.getAttribute("data-row")).data().iUsuarioId;
+                fnPregunta("¿Está seguro de activar usuario?", () => {
+                    fnProcesando();
+                    fnPatch(`seg/usuario/activar/${viUsuarioId}`, {})
+                        .then((pobjApiRpta) => {
+                            if (fnVerificarApiRpta(pobjApiRpta)) {
+                                fnMensaje("Se activó usuario exitosamente");
+                                consultar();
+                            }
+                            fnProcesando(false);
+                        });
+                });
+            }
+        }
+        const desactivar = (event) => {
+            if (@Convert.ToString(vobjUsuarioAccess.lDesactivar).ToLower()) {
+                let viUsuarioId = tblUsuarios.row(event.currentTarget.getAttribute("data-row")).data().iUsuarioId;
+                fnPregunta("¿Está seguro de desactivar usuario?", () => {
+                    fnProcesando();
+                    fnPatch(`seg/usuario/desactivar/${viUsuarioId}`, {})
+                        .then((pobjApiRpta) => {
+                            if (fnVerificarApiRpta(pobjApiRpta)) {
+                                fnMensaje("Se desactivó usuario exitosamente");
+                                consultar();
+                            }
+                            fnProcesando(false);
+                        });
+                });
+            }
+        }
+        const reiniciarClave = (event) => {
+            if (@Convert.ToString(vobjUsuarioAccess.lReiniciarClave).ToLower()) {
+                let viUsuarioId = tblUsuarios.row(event.currentTarget.getAttribute("data-row")).data().iUsuarioId;
+                fnPregunta("¿Está seguro de reiniciar la clave del usuario?", () => {
+                    fnProcesando();
+                    fnPut(`seg/usuario/reiniciarClave/${viUsuarioId}`, {})
+                        .then((pobjApiRpta) => {
+                            if (fnVerificarApiRpta(pobjApiRpta)) {
+                                fnMensaje("Se reinició la clave exitosamente.");
+                            }
+                            fnProcesando(false);
+                        });
+                });
+            }
+        }
+
+        const mostrarEditarRoles = (event) => {
+            if (@Convert.ToString(vobjUsuarioAccess.lEditarRoles).ToLower()) {
+                fnProcesando();
+                objUsuario = tblUsuarios.row(event.currentTarget.getAttribute("data-row")).data();
+                fnGet(`seg/usuario/consultarRoles/${objUsuario.iUsuarioId}`)
+                    .then((pobjApiRpta) => {
+                        if (fnVerificarApiRpta(pobjApiRpta)) {
+                            $("#txtUsuUsuarioRoles").val(objUsuario.sUsuUsuario);
+                            lstUsuarioRoles = pobjApiRpta.objDatos;
+                            tblUsuarioRoles.clear().draw();
+                            tblUsuarioRoles.rows.add(lstUsuarioRoles).draw().columns.adjust().responsive.recalc();
+                            crearCheckTodo();
+                            $("#chkUsuRolActivadoTodos").prop("checked", lstUsuarioRoles.filter((vobjUsuarioRol) => vobjUsuarioRol.lUsuRolActivado).length === lstUsuarioRoles.length);
+                            $("#modRoles").modal({ backdrop: "static", keyboard: false });
+                            $("#modRoles").modal("show");
+                        }
+                        fnProcesando(false);
+                    });
+            }
+        }
+        const activarRol = (event) => {
+            if (@Convert.ToString(vobjUsuarioAccess.lEditarRoles).ToLower()) {
+                let viUsuarioId = tblUsuarioRoles.row(event.currentTarget.getAttribute("data-row")).data().iUsuarioId;
+                let viRolId = tblUsuarioRoles.row(event.currentTarget.getAttribute("data-row")).data().iRolId;
+                let vobjUsuarioRol = lstUsuarioRoles.find((vobjUsuarioRol) => (vobjUsuarioRol.iUsuarioId == viUsuarioId && vobjUsuarioRol.iRolId == viRolId));
+                if (vobjUsuarioRol) vobjUsuarioRol.lUsuRolActivado = event.currentTarget.checked;
+                $("#chkUsuRolActivadoTodos").prop("checked", lstUsuarioRoles.filter((vobjUsuarioRol) => vobjUsuarioRol.lUsuRolActivado).length === lstUsuarioRoles.length);
+            }
+        }
+        const activarTodosRoles = (event) => {
+            if (@Convert.ToString(vobjUsuarioAccess.lEditarRoles).ToLower()) {
+                lstUsuarioRoles.map((vobjUsuarioRol) => vobjUsuarioRol.lUsuRolActivado = event.currentTarget.checked);
+                tblUsuarioRoles.clear().draw();
+                tblUsuarioRoles.rows.add(lstUsuarioRoles).draw().columns.adjust().responsive.recalc();
+            }
+        }
+        const guardarRoles = () => {
+            if (@Convert.ToString(vobjUsuarioAccess.lEditarRoles).ToLower()) {
+                fnPregunta("¿Está seguro de guardar roles de usuario?", () => {
+                    fnProcesando();
+                    fnPut(`seg/usuario/editarRoles/${objUsuario.iUsuarioId}`, lstUsuarioRoles)
+                        .then((pobjApiRpta) => {
+                            if (fnVerificarApiRpta(pobjApiRpta)) {
+                                fnMensaje("Se editaron roles exitosamente.");
+                                $("#modRoles").modal("hide");
+                            }
+                            fnProcesando(false);
+                        });
+                });
+            }
+        }
+
+        const mostrarCambios_Usuario = (event) => {
+            objUsuario = tblUsuarios.row(event.currentTarget.getAttribute("data-row")).data();
+            mostrarCambios({ sIdentificador: objUsuario.sUsuUsuario, iCamRegistro: objUsuario.iUsuarioId });
+        }
+
+        // Eventos
+        $(document).ready(() => {
+            crearControles();
+            crearTablaUsuarios();
+            crearTablaUsuarioRoles();
+            consultar();
+        });
+        $(document).on("click", "#btnCrear", mostrarCrear);
+        $(document).on("click", ".btnEditar", mostrarEditar);
+        $(document).on("click", "#btnGuardar", guardar);
+        $(document).on("click", ".btnActivar", activar);
+        $(document).on("click", ".btnDesactivar", desactivar);
+        $(document).on("click", ".btnReiniciarClave", reiniciarClave);
+        $(document).on("click", ".btnMostrarEditarRoles", mostrarEditarRoles);
+        $(document).on("change", "#chkUsuRolActivadoTodos", activarTodosRoles);
+        $(document).on("change", ".chkUsuRolActivado", activarRol);
+        $(document).on("click", "#btnGuardarRoles", guardarRoles);
+        $(document).on("click", ".btnMostrarCambios", mostrarCambios_Usuario);
+    </script>
+}
