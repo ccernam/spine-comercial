@@ -4,3 +4,9 @@ C:\Users\Asus TUF\Documents\Empresas\HomeetCoders\Spine\Spine.Helpers\obj\Debug\
 C:\Users\Asus TUF\Documents\Empresas\HomeetCoders\Spine\Spine.Helpers\obj\Debug\Spine.Helpers.dll
 C:\Users\Asus TUF\Documents\Empresas\HomeetCoders\Spine\Spine.Helpers\obj\Debug\Spine.Helpers.pdb
 C:\Users\Asus TUF\Documents\Empresas\HomeetCoders\Spine\Spine.Helpers\obj\Debug\Spine.Helpers.csproj.AssemblyReference.cache
+C:\Users\Asus TUF\Documents\Empresas\HomeetCoders\spine-comercial\Spine.Helpers\bin\Debug\Spine.Helpers.dll
+C:\Users\Asus TUF\Documents\Empresas\HomeetCoders\spine-comercial\Spine.Helpers\bin\Debug\Spine.Helpers.pdb
+C:\Users\Asus TUF\Documents\Empresas\HomeetCoders\spine-comercial\Spine.Helpers\obj\Debug\Spine.Helpers.csproj.AssemblyReference.cache
+C:\Users\Asus TUF\Documents\Empresas\HomeetCoders\spine-comercial\Spine.Helpers\obj\Debug\Spine.Helpers.csproj.CoreCompileInputs.cache
+C:\Users\Asus TUF\Documents\Empresas\HomeetCoders\spine-comercial\Spine.Helpers\obj\Debug\Spine.Helpers.dll
+C:\Users\Asus TUF\Documents\Empresas\HomeetCoders\spine-comercial\Spine.Helpers\obj\Debug\Spine.Helpers.pdb
