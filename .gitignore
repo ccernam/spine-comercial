@@ -1,2 +1,15 @@
 Spine.Web/bin/
 Spine.Web/obj/
+Spine.Entities/bin/
+Spine.Entities/obj/
+Spine.Repositories/bin/
+Spine.Repositories/obj/
+Spine.Entities/obj/
+Spine.Services/bin/
+Spine.Services/obj/
+Spine.Constants/bin/
+Spine.Constants/obj/
+Spine.Helpers/bin/
+Spine.Helpers/obj/
+Spine.Librerias/bin/
+Spine.Librerias/obj/
