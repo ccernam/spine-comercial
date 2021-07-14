@@ -1,4 +1,4 @@
-.suo
+*.suo
 Spine.Web/bin/
 Spine.Web/obj/
 Spine.Entities/bin/
@@ -14,3 +14,7 @@ Spine.Helpers/bin/
 Spine.Helpers/obj/
 Spine.Librerias/bin/
 Spine.Librerias/obj/
+[Dd]ebug/
+[Rr]elease/
+[Bb]in/
+[Oo]bj/
