@@ -4,9 +4,3 @@ C:\Users\Asus TUF\Documents\Empresas\HomeetCoders\Spine\Spine.Constants\obj\Debu
 C:\Users\Asus TUF\Documents\Empresas\HomeetCoders\Spine\Spine.Constants\obj\Debug\Spine.Constants.dll
 C:\Users\Asus TUF\Documents\Empresas\HomeetCoders\Spine\Spine.Constants\obj\Debug\Spine.Constants.pdb
 C:\Users\Asus TUF\Documents\Empresas\HomeetCoders\Spine\Spine.Constants\obj\Debug\Spine.Constants.csproj.AssemblyReference.cache
-C:\Users\Asus TUF\Documents\Empresas\HomeetCoders\spine-comercial\Spine.Constants\bin\Debug\Spine.Constants.dll
-C:\Users\Asus TUF\Documents\Empresas\HomeetCoders\spine-comercial\Spine.Constants\bin\Debug\Spine.Constants.pdb
-C:\Users\Asus TUF\Documents\Empresas\HomeetCoders\spine-comercial\Spine.Constants\obj\Debug\Spine.Constants.csproj.AssemblyReference.cache
-C:\Users\Asus TUF\Documents\Empresas\HomeetCoders\spine-comercial\Spine.Constants\obj\Debug\Spine.Constants.csproj.CoreCompileInputs.cache
-C:\Users\Asus TUF\Documents\Empresas\HomeetCoders\spine-comercial\Spine.Constants\obj\Debug\Spine.Constants.dll
-C:\Users\Asus TUF\Documents\Empresas\HomeetCoders\spine-comercial\Spine.Constants\obj\Debug\Spine.Constants.pdb
